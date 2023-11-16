@@ -7,8 +7,7 @@ from google.cloud import storage
 from tools import (
     RestAPI, 
     controlnet, 
-    test, 
-    gRPCAPI)
+    test)
 
 from config import (
     BASE_PATH,
