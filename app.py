@@ -39,7 +39,7 @@ current_model_type = None
 
 users = [
     User('user1', 'password1', 'c64117c4-0010-471b-a7b9-caa5663b33a9', "$style"),
-    User('user2', 'password2', 'model_id2', 'model_type2'),
+    User('rimorindianepic', 'rimorai@123', '3c6079cb-18d7-4a23-bc4d-357299b29c54', '$style'),
     # Add more users as needed
 ]
 

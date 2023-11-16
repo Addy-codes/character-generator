@@ -10,7 +10,7 @@ body {
 
 .container {
     background-color: #000000;
-    padding: 100px;
+    padding: 150px;
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 800px;
@@ -98,6 +98,6 @@ button:hover {
 
 .responsive-image {
     max-width: 100%;
-    max-height: 250px;
-
+    max-height: 400px;
+    margin-bottom: 30px;
 }
