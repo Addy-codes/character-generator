@@ -7,7 +7,8 @@ from google.cloud import storage
 from tools import (
     RestAPI, 
     controlnet, 
-    test,)
+    test, 
+    gRPCAPI)
 
 from config import (
     BASE_PATH,
@@ -168,7 +169,7 @@ def generate_image():
     # return jsonify({"image_url": image_url, "image_id": image_id})
 
     return render_template(
-        "index.html", character_name=CHARACTERNAME, filename=FILENAME, model_id = current_model_id
+        "index.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
     )
 
 # Not yet implemented
@@ -184,7 +185,7 @@ def previous_images(character_name):
 
 @app.route("/process", methods=["POST"])
 def process():
-    global FILENAME, CHARACTERNAME, current_model_id, current_model_type
+    global FILENAME,PROMPT, CHARACTERNAME, current_model_id, current_model_type
 
     action = request.form.get("action")
 
@@ -203,11 +204,12 @@ def process():
     file_to_delete = PATH_FILE
     if os.path.exists(file_to_delete):
         os.remove(file_to_delete)
-
+    temp_prompt = PROMPT
+    temp_character_name = CHARACTERNAME
     # Redirect back to the main page or any other desired page
     FILENAME = None
     CHARACTERNAME = None
-    return redirect("/")
+    return render_template("index.html", model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
 
 
 if __name__ == "__main__":

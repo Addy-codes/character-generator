@@ -53,7 +53,7 @@ class RestAPI:
         #@markdown > The number of iterations or stages a diffusion model goes through in the process of generating an image from a given text prompt. Lower steps will generate more quickly, but if steps are lowered too much, image quality will suffer. Images with higher steps take longer to generate, but often give more detailed results.
         cfg_scale=7 #@param {type:"slider", min:0, max:35, step:1}
         #@markdown > CFG (Classifier Free Guidance) scale determines how strictly the diffusion process adheres to the prompt text (higher values keep your image closer to your prompt).
-        seed=1  #@param {type:"number"}
+        seed=0  #@param {type:"number"}
         #@markdown > The noise seed to use during diffusion.  Using `0` means a random seed will be generated for each image.  If you provide a non-zero value, images will be far less random.
         download_results = False # @param {type:"boolean"}
         #@markdown > Results are displayed inline below this section. By checking this box, the generated images will also be downloaded to your local machine.

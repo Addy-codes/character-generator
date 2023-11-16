@@ -37,12 +37,14 @@
             <div class="form-group">
                 <label for="characterName">Character Name</label>
                 <input type="text" id="characterName" name="characterName"
-                    placeholder="Enter the name of the character or prop" required>
+                    placeholder="Enter the name of the character or prop" {% if characterName %}
+                    value="{{ characterName }}" {% endif %} required>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" rows="5"
-                    placeholder="Enter physical details and attributes" required></textarea>
+                    placeholder="Enter physical details and attributes"
+                    required>{% if description %}{{description}}{% endif %}</textarea>
             </div>
             <div class="form-group">
                 <label for="imageUpload">Upload Outline Image (Optional)</label>
