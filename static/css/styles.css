@@ -116,6 +116,7 @@ button:hover {
 }
 
 .generated-image-container {
+    margin-top: 200px;
     position: relative;
     background-color: white;
     /* padding: 20px; */
