@@ -54,25 +54,33 @@
             <div class="preview-box">
                 <img id="imagePreview" src="#" alt="Preview">
             </div>
-            <button type="submit">Generate</button>
+            <div class="generate-button">
+                <button type="submit">Generate</button>
+            </div>
         </form>
     </div>
     <div class="right-sidebar">
         <div class="thumbnails">
-            <!-- {% if filename %} -->
-            <div class="generated-image">
-                <img src="{{ url_for('static', filename='images/' + filename) }}" alt="Generated Image"
-                    class="responsive-image">
+            {% if filename %}
+            <div class="generated-image-container">
+                <div class="generated-image-container">
+                    <div class="generated-image">
+                        <img id="generatedImage" src="{{ url_for('static', filename='images/' + filename) }}"
+                            alt="Generated Image" class="responsive-image">
+                    </div>
+                    <h1>--------------------------------------</h1>
+                </div>
             </div>
-            <!-- {% else %} -->
+            {% else %}
             <div class="generated-image">
             </div>
-            <!-- {% endif %} -->
+            {% endif %}
         </div>
         <form method="post" action="/process">
             {% if filename %}
-            <button name="action" value="keep" class="keep-button">Keep</button>
-            <button name="action" value="discard" class="discard-button">Discard</button>
+            <button name="action" value="keep" onclick="downloadImage()" class="keep-button">Download</button>
+            <!-- <button name="action" value="discard" class="discard-button">Discard</button> -->
+            <!-- <button name="action" value="donwload" class="download-button">Download</button> -->
             {% endif %}
             <button type="submit" name="action" value="logout" class="logout-button">Logout</button>
         </form>
@@ -82,3 +90,28 @@
 </body>
 
 </html>
+
+<script>
+    function downloadImage() {
+        // Get the generated image element
+        var generatedImage = document.getElementById('generatedImage');
+
+        // Create a link element
+        var downloadLink = document.createElement('a');
+
+        // Set the href attribute to the image source
+        downloadLink.href = generatedImage.src;
+
+        // Set the download attribute to the desired filename
+        downloadLink.download = 'generated_image.png';
+
+        // Append the link to the document
+        document.body.appendChild(downloadLink);
+
+        // Trigger a click event on the link
+        downloadLink.click();
+
+        // Remove the link from the document
+        document.body.removeChild(downloadLink);
+    }
+</script>

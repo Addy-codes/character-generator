@@ -206,9 +206,10 @@ def process():
     temp_prompt = PROMPT
     temp_character_name = CHARACTERNAME
     # Redirect back to the main page or any other desired page
+    temp_filename = FILENAME
     FILENAME = None
     CHARACTERNAME = None
-    return render_template("index.html", model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
+    return render_template("index.html",filename = temp_filename, model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
 
 
 if __name__ == "__main__":
