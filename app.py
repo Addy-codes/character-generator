@@ -8,7 +8,7 @@ from tools import (
     RestAPI, 
     controlnet, 
     test)
-
+import requests
 from config import (
     BASE_PATH,
     SECRET_KEY, 
@@ -87,6 +87,24 @@ def move_to_cloud_storage(filename, folder_name):
     blob.upload_from_filename(f"{PATH_FILE}")
 
     return blob.public_url
+
+def remove_background(file_path):
+    api_key = '11b577ef91af568db133342cdf5342b84fd9eb7492d6849a0a7d1f9819177ef658a148e67c0973773700e5645c55562b'  # Replace with your actual API key
+    url = 'https://clipdrop-api.co/remove-background/v1'
+
+    with open(f"./static/images/{file_path}", 'rb') as image_file:
+        files = {'image_file': (f"./static/images/{file_path}", image_file, 'image/jpeg')}
+        headers = {'x-api-key': api_key}
+
+        response = requests.post(url, files=files, headers=headers)
+
+        if response.ok:
+            # Save the output image back to the original file path
+            with open(f"./static/images/{file_path}", 'wb') as out_file:
+                out_file.write(response.content)
+            print(f"Background removed and image saved back as '{file_path}'")
+        else:
+            print(f"Error: {response.json()['error']}")
 
 
 # Helper function to delete files from temporary storage
@@ -200,6 +218,13 @@ def process():
 
     if action == "keep":
         image_url = move_to_cloud_storage(FILENAME, CHARACTERNAME)
+    
+    if action == "removebg":
+        remove_background(FILENAME)
+        return render_template(
+        "index.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
+    )
+
 
     file_to_delete = PATH_FILE
     if os.path.exists(file_to_delete):

@@ -78,7 +78,12 @@
         </div>
         <form method="post" action="/process">
             {% if filename %}
-            <button name="action" value="keep" onclick="downloadImage()" class="keep-button">Download</button>
+            <div id="oneline">
+                <button name="action" value="removebg" class="keep-button split">Remove Background</button>
+                <button name="action" value="keep" onclick="downloadImage()" class="keep-button split">Download</button>
+
+            </div>
+
             <!-- <button name="action" value="discard" class="discard-button">Discard</button> -->
             <!-- <button name="action" value="donwload" class="download-button">Download</button> -->
             {% endif %}

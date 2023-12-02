@@ -58,6 +58,15 @@ button {
     font-weight: bold;
 }
 
+.split{
+    width:50%;
+    
+}
+#oneline{
+    display: flex;
+    gap: 10px;
+}
+
 button:hover {
     background-color: #0056b3;
 }
