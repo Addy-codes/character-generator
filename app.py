@@ -135,7 +135,7 @@ def login():
         if user and user.authenticate(password):
             current_model_id = user.model_id
             current_model_type = user.model_type
-            return render_template('index.html', filename = "./static/images/image.png", model_id = current_model_id)
+            return render_template('generator.html', filename = "./static/images/image.png", model_id = current_model_id)
 
     return render_template('index.html', message="Invalid username or password!", model_id = current_model_id)
 
@@ -146,8 +146,8 @@ def logout():
     current_model_id = None
     return render_template('index.html', message="You have been locked out!", model_id = current_model_id)
 
-@app.route("/generate-image", methods=["POST"])
-def generate_image():
+@app.route("/generate", methods=["POST"])
+def generate():
     global CHARACTERNAME, FILENAME, PATH_FILE, PROMPT, current_model_id, current_model_type
     if current_model_id == None:
         return render_template('index.html', message="Kindly login to your account!", model_id = current_model_id)
@@ -187,18 +187,18 @@ def generate_image():
     # return jsonify({"image_url": image_url, "image_id": image_id})
 
     return render_template(
-        "index.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
+        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
     )
 
 # Not yet implemented
-@app.route("/previous-images/<character_name>", methods=["GET"])
-def previous_images(character_name):
-    # Query the database to find images associated with the provided character name
-    image_urls = [
-        move_to_cloud_storage(image["image_id"], character_name)
-        for image in collection.find({"character_name": character_name})
-    ]
-    return jsonify({"image_urls": image_urls})
+# @app.route("/previous-images/<character_name>", methods=["GET"])
+# def previous_images(character_name):
+#     # Query the database to find images associated with the provided character name
+#     image_urls = [
+#         move_to_cloud_storage(image["image_id"], character_name)
+#         for image in collection.find({"character_name": character_name})
+#     ]
+#     return jsonify({"image_urls": image_urls})
 
 
 @app.route("/process", methods=["POST"])
@@ -214,7 +214,7 @@ def process():
         return render_template('index.html', message="You have been locked out!", model_id = current_model_id)
 
     if FILENAME == None or CHARACTERNAME == None:
-        return render_template('index.html', message="Kindly generate the image first!", model_id = current_model_id)
+        return render_template('generator.html', message="Kindly generate the image first!", model_id = current_model_id)
 
     if action == "keep":
         image_url = move_to_cloud_storage(FILENAME, CHARACTERNAME)
@@ -222,7 +222,7 @@ def process():
     if action == "removebg":
         remove_background(FILENAME)
         return render_template(
-        "index.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
+        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
     )
 
 
@@ -235,7 +235,7 @@ def process():
     temp_filename = FILENAME
     FILENAME = None
     CHARACTERNAME = None
-    return render_template("index.html",filename = temp_filename, model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
+    return render_template("generator.html",filename = temp_filename, model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
 
 
 if __name__ == "__main__":

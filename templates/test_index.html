@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Creator</title>
+    <link rel="stylesheet" href="static\css\styles.css">
+    <script src="static\js\script.js" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Create a Character</h1>
+        <!-- New username and password fields -->
+
+        {% if message %}
+        <p style="color: red;">{{ message }}</p>
+        {% endif %}
+
+        {% if not model_id %}
+        <!-- Display username, password, and login button only if not logged in -->
+        <form id="loginForm" action="{{ url_for('login') }}" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        {% else %}
+
+        <form id="characterForm" action="{{ url_for('generate_image') }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="characterName">Character Name</label>
+                <input type="text" id="characterName" name="characterName"
+                    placeholder="Enter the name of the character or prop" {% if characterName %}
+                    value="{{ characterName }}" {% endif %} required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="5"
+                    placeholder="Enter physical details and attributes"
+                    required>{% if description %}{{description}}{% endif %}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="imageUpload">Upload Outline Image (Optional)</label>
+                <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
+            </div>
+            <!-- Existing form fields -->
+            <div class="preview-box">
+                <img id="imagePreview" src="#" alt="Preview">
+            </div>
+            <div class="generate-button">
+                <button type="submit">Generate</button>
+            </div>
+        </form>
+    </div>
+    <div class="right-sidebar">
+        <div class="thumbnails">
+            {% if filename %}
+            <div class="generated-image-container">
+                <div class="generated-image-container">
+                    <div class="generated-image">
+                        <img id="generatedImage" src="{{ url_for('static', filename='images/' + filename) }}"
+                            alt="Generated Image" class="responsive-image">
+                    </div>
+                    <h1>--------------------------------------</h1>
+                </div>
+            </div>
+            {% else %}
+            <div class="generated-image">
+            </div>
+            {% endif %}
+        </div>
+        <form method="post" action="/process">
+            {% if filename %}
+            <div id="oneline">
+                <button name="action" value="removebg" class="keep-button split">Remove Background</button>
+                <button name="action" value="keep" onclick="downloadImage()" class="keep-button split">Download</button>
+
+            </div>
+
+            <!-- <button name="action" value="discard" class="discard-button">Discard</button> -->
+            <!-- <button name="action" value="donwload" class="download-button">Download</button> -->
+            {% endif %}
+            <button type="submit" name="action" value="logout" class="logout-button">Logout</button>
+        </form>
+
+        {% endif %}
+    </div>
+</body>
+
+</html>
+
+<script>
+    function downloadImage() {
+        // Get the generated image element
+        var generatedImage = document.getElementById('generatedImage');
+
+        // Create a link element
+        var downloadLink = document.createElement('a');
+
+        // Set the href attribute to the image source
+        downloadLink.href = generatedImage.src;
+
+        // Set the download attribute to the desired filename
+        downloadLink.download = 'generated_image.png';
+
+        // Append the link to the document
+        document.body.appendChild(downloadLink);
+
+        // Trigger a click event on the link
+        downloadLink.click();
+
+        // Remove the link from the document
+        document.body.removeChild(downloadLink);
+    }
+</script>

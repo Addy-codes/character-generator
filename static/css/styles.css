@@ -10,20 +10,30 @@ body {
 
 .container {
     background-color: #000000;
-    padding: 150px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
+    max-width: 1200px;
+    /* Adjust the maximum width of the container */
     width: 100%;
     box-sizing: border-box;
-    height: 100vh;
-    /* Set the height to 100% of the viewport height */
 }
 
+.content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.character-form-container,
+.right-sidebar {
+    flex: 1;
+    margin: 10px;
+    max-width: 500px;
+    /* Adjust the maximum width of each section */
+}
 
 h1 {
     text-align: center;
-    margin-bottom: 20px;
     color: white;
 }
 
@@ -42,108 +52,39 @@ input,
 textarea,
 button {
     width: 100%;
-    padding: 15px;
-    margin-bottom: 25px;
+    padding: 10px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 16px;
-    box-sizing: border-box;
+    border-radius: 5px;
+    font-size: 14px;
 }
 
 button {
     background-color: #007bff;
-    color: #fff;
+    color: white;
     cursor: pointer;
     transition: background-color 0.3s;
     font-weight: bold;
-}
-
-.split{
-    width:50%;
-    
-}
-#oneline{
-    display: flex;
-    gap: 10px;
 }
 
 button:hover {
     background-color: #0056b3;
 }
 
-.button-form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    /* Add margin between the buttons and the next element */
-}
-
-.keep-button button,
-.discard-button,
-.logout-button button {
-    width: 49%;
-    /* Adjust the width as needed */
-    margin-bottom: 50px;
-    /* Add margin between the buttons */
-}
-
-.keep-button:last-child,
-.discard-button:last-child,
-.logout-button button:last-child {
-    margin-right: 0;
-    /* Remove margin-right for the last button in the row */
-}
-
-.preview-box {
-    margin-top: 20px;
-}
-
 #imagePreview {
     max-width: 100%;
-    max-height: 200px;
-    margin-top: 10px;
+    height: auto;
 }
 
 .responsive-image {
     max-width: 100%;
-    max-height: 400px;
-    margin-bottom: 30px;
-}
-
-.generated-image {
-    padding: 20px;
-    height: 400px;
-    align-self: baseline;
-    overflow: hidden;
-}
-
-.generated-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: auto;
 }
 
 .generated-image-container {
-    margin-top: 250px;
-    position: relative;
+    margin-top: 20px;
     background-color: white;
-    /* padding: 20px; */
-    /* Adjust the padding as needed */
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 5px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
-    /* Add margin as needed */
-    /* width: 300px; */
-    /* Fixed width for the image */
-}
-
-.generated-image {
-    position: relative;
-}
-
-.generated-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
