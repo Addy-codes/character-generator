@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="{{ url_for('static', filename='js/game.js') }}"></script>
   <style>
     body {
       margin: 0;
@@ -41,6 +42,11 @@
     <a href="#">Background removal </a>
     <a href="#">3D Asset Creation</a>
     <a href="#">Variations Generator</a>
+   
+    <a href="{{ render_template('flappy_bird.html') }}" class="nav-link">Play Flappy Bird</a>
+
+
+
   </nav>
 
   <!-- Your content goes here -->

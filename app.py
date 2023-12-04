@@ -202,6 +202,11 @@ def generate():
 #     return jsonify({"image_urls": image_urls})
 
 
+
+@app.route('/flappy_bird')
+def flappy_bird():
+    return render_template('flappy_bird.html')
+
 @app.route("/process", methods=["POST"])
 def process():
     global FILENAME,PROMPT, CHARACTERNAME, current_model_id, current_model_type
@@ -237,6 +242,7 @@ def process():
     FILENAME = None
     CHARACTERNAME = None
     return render_template("generator.html",filename = temp_filename, model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
+
 
 
 if __name__ == "__main__":
