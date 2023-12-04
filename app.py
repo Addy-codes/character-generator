@@ -16,7 +16,8 @@ from config import (
     DB_NAME, 
     USERNAME, 
     PASSWORD,
-    api
+    api,
+    Clipdrop_api,
     )
 
 class User:
@@ -89,7 +90,7 @@ def move_to_cloud_storage(filename, folder_name):
     return blob.public_url
 
 def remove_background(file_path):
-    api_key = '11b577ef91af568db133342cdf5342b84fd9eb7492d6849a0a7d1f9819177ef658a148e67c0973773700e5645c55562b'  # Replace with your actual API key
+    api_key = Clipdrop_api  # Replace with your actual API key
     url = 'https://clipdrop-api.co/remove-background/v1'
 
     with open(f"./static/images/{file_path}", 'rb') as image_file:

@@ -11,6 +11,7 @@ with open(f'{BASE_PATH}/key/config.json') as f:
 USERNAME = config["USERNAME"]
 PASSWORD = config["PASSWORD"]
 api = config["API"]
+Clipdrop_api = config["CLIPDROP_API"]
 
 MONGO_DB = {
     "host": "",
