@@ -6,7 +6,10 @@ Welcome to the Character Generator project, where the fusion of technology and c
 Curious about how Character Generator brings your ideas to life? Look at few of our generations below:
 
 Pop Art Style Model:
+
 ![Pop Art Style](https://github.com/Addy-codes/character-generator/assets/72205091/47134388-c16c-4abf-a351-6fb633dcd3bb)
+
+Removing the backgroud from your images to get them ready for your animations or projects:
 
 ![Pop Art (No Background)](https://github.com/Addy-codes/character-generator/assets/72205091/c4627a79-7f54-4e91-90c0-91b252af6d79)
 
