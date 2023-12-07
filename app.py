@@ -203,10 +203,10 @@ def generate():
 
 
 
-@app.route('/flappy_bird')
-def flappy_bird():
-    print("hello ")
-    return render_template('indexflap.html')
+# @app.route('/flappy_bird')
+# def flappy_bird():
+#     print("hello ")
+#     return render_template('indexflap.html')
 
 @app.route("/process", methods=["POST"])
 def process():
