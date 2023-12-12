@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 import os
 import tempfile
 import uuid
@@ -7,6 +7,7 @@ import time
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
 from google.cloud import storage
+from functools import wraps
 from tools import (
     RestAPI, 
     controlnet, 
@@ -49,6 +50,7 @@ users = [
 ]
 
 app = Flask(__name__)
+app.secret_key = SECRET_KEY
 # Initialize MongoDB client
 mongo_client = MongoClient(
     f"mongodb+srv://{USERNAME}:{PASSWORD}@stable.myeot1r.mongodb.net/"
@@ -72,6 +74,13 @@ FILENAME = None
 PATH_FILE = None
 PROMPT = None
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))  # Redirect to login page if not logged in
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Helper function to move files to Google Cloud Storage for character generator
 def move_to_cloud_storage(filename, folder_name):
@@ -160,21 +169,23 @@ def login():
 
         user = next((user for user in users if user.username == username), None)
 
-        if user and user.authenticate(password):
-            current_model_id = user.model_id
-            current_model_type = user.model_type
-            return render_template('generator.html', filename = "./static/images/image.png", model_id = current_model_id)
-
-    return render_template('index.html', message="Invalid username or password!", model_id = current_model_id)
-
+        session['user_id'] = user.username  # Store user identifier in session
+        session['model_id'] = user.model_id
+        session['model_type'] = user.model_type
+        return render_template('generator.html', filename="./static/images/image.png", model_id=user.model_id)
+    return render_template('index.html', message="Invalid username or password!")
 @app.route('/logout', methods=['POST'])
 def logout():
     global current_model_id, current_model_type
     current_model_type = None
     current_model_id = None
+    session.pop('user_id', None)  # Remove user_id from session
+    session.pop('model_id', None)  # Remove model_id from session
+    session.pop('model_type', None)  # Remove model_type from session
     return render_template('index.html', message="You have been locked out!", model_id = current_model_id)
 
 @app.route("/generate", methods=["GET", "POST"])
+@login_required
 def generate():
     global CHARACTERNAME, FILENAME, PATH_FILE, PROMPT, current_model_id, current_model_type
     # Handling a GET request
@@ -278,10 +289,8 @@ def process():
     return render_template("generator.html",filename = temp_filename, model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
 
 @app.route('/modelgen')
-def modelgen():
-    global current_model_id
-    if current_model_id is None:
-        return render_template('index.html', message="Kindly login to your account!", model_id=current_model_id)
+@login_required
+def index():
     return render_template('modelgen.html')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'}

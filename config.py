@@ -4,7 +4,7 @@ import json
 
 BASE_PATH = os.getcwd()
 
-SECRET_KEY = ""
+SECRET_KEY = "Addy-codes"
 
 with open(f'{BASE_PATH}/key/config.json') as f:
     config = json.load(f)
