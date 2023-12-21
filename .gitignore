@@ -1,0 +1,13 @@
+key
+rimor
+
+out
+static/images
+.__pycache__
+.__pycache__
+tools/__pycache__
+tools\__pycache__
+*.pyc
+__pycache__
+tools/static/images/img2img_1958042985.png
+static/uploads/reimagined_image.jpg

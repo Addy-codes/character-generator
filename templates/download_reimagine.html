@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reimagined Image</title>
+    <script src="static/js/navbar.js" defer></script>
+    <style>
+        body {
+            background-color: black;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            margin: 20px auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #originalImage,
+        #variationsContainer,
+        #originalContainer {
+            text-align: center;
+        }
+
+        #variationsContainer img {
+            width: 26%;
+            margin: 5px;
+            border-radius: 13px;
+        }
+
+        #originalContainer img {
+            width: 26%;
+            margin: 5px;
+            border-radius: 13px;
+        }
+
+        h1 {
+            color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        p {
+            color: white;
+            display: flex;
+            justify-content: center;
+            font-size: 23px;
+            margin-top: 0rem;
+            margin-bottom: 2.4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+    <h1>Original Image</h1>
+    <div id="imagePreview">
+
+        <div id="originalContainer">
+            <img src="{{ url_for('static', filename=pathfile.replace('\\', '/')) }}" alt="Original Image">
+        </div>
+
+        <h1>Variations</h1>
+        <!-- <h2>Variations</h2> -->
+
+        <p>Click photos to download</p>
+        <div id="variationsContainer">
+            {% for variation in reimagined_variations %}
+            <img src="data:image/jpeg;base64,{{ variation }}" alt="Reimagined Image"
+                onclick="downloadImage('{{ variation }}')">
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function downloadImage(base64Data) {
+            // Create a link element
+            var a = document.createElement('a');
+
+            // Set the href attribute to the base64 data
+            a.href = 'data:image/jpeg;base64,' + base64Data;
+
+            // Set the download attribute with a default filename (you can customize this)
+            a.download = 'reimagined_image.jpg';
+
+            // Append the link to the document body
+            document.body.appendChild(a);
+
+            // Trigger a click on the link element to start the download
+            a.click();
+
+            // Remove the link from the document body
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+
+</html>

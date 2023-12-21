@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 import os
 import tempfile
 import uuid
 import requests
+import base64
 import time
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
@@ -21,6 +22,7 @@ from config import (
     api,
     Clipdrop_api,
     MESHY_API_KEY,
+    REIMAGINE_API_KEY,
     )
 
 class User:
@@ -49,6 +51,7 @@ users = [
 ]
 
 app = Flask(__name__)
+
 # Initialize MongoDB client
 mongo_client = MongoClient(
     f"mongodb+srv://{USERNAME}:{PASSWORD}@stable.myeot1r.mongodb.net/"
@@ -349,6 +352,62 @@ def upload():
             time.sleep(5)  # Adjust the sleep time as needed
 
     return "Invalid request", 400
+
+@app.route('/reimagine', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'error')
+            return redirect(request.url)
+        
+        file = request.files['file']
+
+        if file.filename == '':
+            flash('No selected file', 'error')
+            return redirect(request.url)
+        
+        # Ensure the uploads folder exists
+        uploads_folder = os.path.join(app.root_path, 'static/uploads')
+        os.makedirs(uploads_folder, exist_ok=True)
+
+        # Save the original image in the static/uploads folder
+        filename = secure_filename(file.filename)
+        pathfile = os.path.join('uploads', filename)  # Use relative path
+        file.save(os.path.join(uploads_folder, filename))
+
+        try:
+            reimagined_variations = reimagine_image(file)
+            return render_template('download_reimagine.html', reimagined_variations=reimagined_variations, pathfile=pathfile)
+        except Exception as e:
+            flash(str(e), 'error')
+
+    return render_template('reimagine.html')
+
+def reimagine_image(image_file):
+    REIMAGINE_API_URL = 'https://clipdrop-api.co/reimagine/v1/reimagine'
+
+    # Reset file pointer to the beginning
+    image_file.seek(0)
+
+    files = {'image_file': ('uploaded_image.jpg', image_file.read(), 'image/jpeg')}
+    headers = {'x-api-key': REIMAGINE_API_KEY}
+
+    # Make three requests with different variations
+    variations = []
+    
+    response = requests.post(REIMAGINE_API_URL, files=files, headers=headers)
+
+    if response.ok:
+        variations.append(base64.b64encode(response.content).decode('utf-8'))
+    else:
+        try:
+            error_message = response.json()['error']
+        except (ValueError, KeyError):
+            error_message = response.text
+
+        raise Exception(f"Reimagine API error: {response.status_code} - {error_message}")
+
+    return variations
 
 if __name__ == "__main__":
     app.run(debug=True)

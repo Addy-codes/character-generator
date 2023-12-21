@@ -13,6 +13,7 @@ PASSWORD = config["PASSWORD"]
 api = config["API"]
 Clipdrop_api = config["CLIPDROP_API"]
 MESHY_API_KEY = config["MESHY_API_KEY"]
+REIMAGINE_API_KEY = config["REIMAGINE_API_KEY"]
 
 MONGO_DB = {
     "host": "",
