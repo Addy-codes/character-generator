@@ -66,11 +66,11 @@
     <div id="imagePreview">
 
         <div id="originalContainer">
-            <img src="{{ url_for('static', filename=pathfile.replace('\\', '/')) }}" alt="Original Image">
+            <!-- Display the original image using the base64 string -->
+            <img src="data:image/jpeg;base64,{{ original_image }}" alt="Original Image">
         </div>
 
         <h1>Variations</h1>
-        <!-- <h2>Variations</h2> -->
 
         <p>Click photos to download</p>
         <div id="variationsContainer">

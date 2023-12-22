@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash,session
 import os
 import tempfile
 import uuid
@@ -51,6 +51,9 @@ users = [
 ]
 
 app = Flask(__name__)
+app.SECRET_KEY = SECRET_KEY
+
+app.config['SECRET_KEY'] =  SECRET_KEY
 
 # Initialize MongoDB client
 mongo_client = MongoClient(
@@ -152,11 +155,10 @@ saved_images = {}
 @app.route("/")
 def home():
 
-    return render_template("index.html", model_id = current_model_id)
+    return render_template("index.html")
 
 @app.route('/login', methods=['POST'])
 def login():
-    global current_model_id, current_model_type
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -164,11 +166,17 @@ def login():
         user = next((user for user in users if user.username == username), None)
 
         if user and user.authenticate(password):
-            current_model_id = user.model_id
-            current_model_type = user.model_type
-            return render_template('generator.html', filename = "./static/images/image.png", model_id = current_model_id)
+            # Store user model information in session
+            session['current_model_id'] = user.model_id
+            session['current_model_type'] = user.model_type
 
-    return render_template('index.html', message="Invalid username or password!", model_id = current_model_id)
+            return render_template('generator.html', filename="./static/images/image.png", model_id=session['current_model_id'])
+
+        # In case of failure, reset the session variables
+        session.pop('current_model_id', None)
+        session.pop('current_model_type', None)
+
+    return render_template('index.html', message="Invalid username or password!")
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -356,43 +364,29 @@ def upload():
 @app.route('/reimagine', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part', 'error')
-            return redirect(request.url)
-        
-        file = request.files['file']
-
-        if file.filename == '':
-            flash('No selected file', 'error')
-            return redirect(request.url)
-        
-        # Ensure the uploads folder exists
-        uploads_folder = os.path.join(app.root_path, 'static/uploads')
-        os.makedirs(uploads_folder, exist_ok=True)
-
-        # Save the original image in the static/uploads folder
-        filename = secure_filename(file.filename)
-        pathfile = os.path.join('uploads', filename)  # Use relative path
-        file.save(os.path.join(uploads_folder, filename))
-
-        try:
-            reimagined_variations = reimagine_image(file)
-            return render_template('download_reimagine.html', reimagined_variations=reimagined_variations, pathfile=pathfile)
-        except Exception as e:
-            flash(str(e), 'error')
+        file = request.files.get('file')
+        if file and allowed_file(file.filename):
+            try:
+                original_image_base64 = base64.b64encode(file.read()).decode('utf-8')
+                file.stream.seek(0)  # Reset the stream position after reading
+                reimagined_variations = reimagine_image(file.stream)
+                return render_template('download_reimagine.html', original_image=original_image_base64, reimagined_variations=reimagined_variations)
+            except Exception as e:
+                flash(str(e), 'error')
+        else:
+            flash('No valid file provided', 'error')
 
     return render_template('reimagine.html')
 
-def reimagine_image(image_file):
+def reimagine_image(image_stream):
     REIMAGINE_API_URL = 'https://clipdrop-api.co/reimagine/v1/reimagine'
 
-    # Reset file pointer to the beginning
-    image_file.seek(0)
+    # Create a file-like object from the stream
+    image_file = ('uploaded_image.jpg', image_stream, 'image/jpeg')
 
-    files = {'image_file': ('uploaded_image.jpg', image_file.read(), 'image/jpeg')}
+    files = {'image_file': image_file}
     headers = {'x-api-key': REIMAGINE_API_KEY}
 
-    # Make three requests with different variations
     variations = []
     
     response = requests.post(REIMAGINE_API_URL, files=files, headers=headers)
