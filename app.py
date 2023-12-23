@@ -5,6 +5,8 @@ import uuid
 import requests
 import base64
 import time
+import gradio_client
+import shutil
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
 from google.cloud import storage
@@ -123,23 +125,43 @@ def upload_to_gcs(file, folder_name):
     return blob.public_url
 
 def remove_background(file_path):
-    api_key = Clipdrop_api  # Replace with your actual API key
-    url = 'https://clipdrop-api.co/remove-background/v1'
+    file_path = f"./static/images/{file_path}"
+    # Get the public URL of the image
+    image_url = get_public_url(file_path)
 
-    with open(f"./static/images/{file_path}", 'rb') as image_file:
-        files = {'image_file': (f"./static/images/{file_path}", image_file, 'image/jpeg')}
-        headers = {'x-api-key': api_key}
+    # Initialize the Gradio client
+    client = gradio_client.Client("https://eccv2022-dis-background-removal.hf.space/--replicas/l8swv/")
+    
+    # Call the API to remove the background
+    result = client.predict(image_url, api_name="/predict")
 
-        response = requests.post(url, files=files, headers=headers)
+    # Assuming the result contains the path to the processed image
+    processed_image_path = result[0]
 
-        if response.ok:
-            # Save the output image back to the original file path
-            with open(f"./static/images/{file_path}", 'wb') as out_file:
-                out_file.write(response.content)
-            print(f"Background removed and image saved back as '{file_path}'")
-        else:
-            print(f"Error: {response.json()['error']}")
+    # Replace the original file with the new file
+    shutil.move(processed_image_path, file_path)
 
+    print(file_path)
+
+    # Optional: Clean up any temporary directories created by Gradio
+    temp_dir = os.path.dirname(processed_image_path)
+    if os.path.exists(temp_dir) and os.path.isdir(temp_dir):
+        shutil.rmtree(temp_dir)
+
+def get_public_url(file_path):
+    """
+    Uploads a file to 0x0.st and returns the URL.
+
+    :param file_path: Path to the file to upload
+    :return: URL of the uploaded file
+    """
+    with open(file_path, 'rb') as f:
+        response = requests.post('https://0x0.st', files={'file': f})
+    
+    if response.status_code == 200:
+        return response.text.strip()
+    else:
+        raise Exception(f"Error uploading file: {response.status_code}")
 
 # Helper function to delete files from temporary storage
 def delete_from_temp_storage(filename):

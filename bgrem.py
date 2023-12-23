@@ -1,37 +1,44 @@
+import gradio_client
 import shutil
 import os
-import gradio_client
+import requests
 
-# Path to your local image file
-local_image_path = "source_image.png"
+def get_public_url(file_path):
+    """
+    Uploads a file to 0x0.st and returns the URL.
 
-# The desired new location for your file
-new_location1 = "image1.png"
+    :param file_path: Path to the file to upload
+    :return: URL of the uploaded file
+    """
+    with open(file_path, 'rb') as f:
+        response = requests.post('https://0x0.st', files={'file': f})
+    
+    if response.status_code == 200:
+        return response.text.strip()
+    else:
+        raise Exception(f"Error uploading file: {response.status_code}")
 
-client = gradio_client.Client("https://eccv2022-dis-background-removal.hf.space/--replicas/l8swv/")
 
-# Prepare the image data for sending
-with open(local_image_path, "rb") as image_file:
-    image_data = {
-        "image": image_file.read(),
-        "filename": os.path.basename(local_image_path)
-    }
+def remove_background(file_path):
+    # Get the public URL of the image
+    image_url = get_public_url(file_path)
 
-# Call the predict method with the image data
-result = client.predict(image_data, api_name="/predict")
+    # Initialize the Gradio client
+    client = gradio_client.Client("https://eccv2022-dis-background-removal.hf.space/--replicas/l8swv/")
+    
+    # Call the API to remove the background
+    result = client.predict(image_url, api_name="/predict")
 
-# Assuming result contains a file path
-temp_file_path1 = result[0]
+    # Assuming the result contains the path to the processed image
+    processed_image_path = result[0]
 
-# Copy the file from the temporary location to your desired location
-shutil.copy(temp_file_path1, new_location1)
+    # Replace the original file with the new file
+    shutil.move(processed_image_path, file_path)
 
-# Delete the temporary file
-os.remove(temp_file_path1)
+    # Optional: Clean up any temporary directories created by Gradio
+    temp_dir = os.path.dirname(processed_image_path)
+    if os.path.exists(temp_dir) and os.path.isdir(temp_dir):
+        shutil.rmtree(temp_dir)
 
-# Remove the directory containing the temporary file
-temp_dir = os.path.dirname(temp_file_path1)
-if os.path.exists(temp_dir) and os.path.isdir(temp_dir):
-    shutil.rmtree(temp_dir)
-
-print(f"File copied to: {new_location1}")
+# Example usage
+remove_background("source_image.png")
