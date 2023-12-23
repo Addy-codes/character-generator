@@ -185,7 +185,6 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
         user = next((user for user in users if user.username == username), None)
 
         if user and user.authenticate(password):
