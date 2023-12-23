@@ -301,7 +301,6 @@ def process():
         "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
     )
 
-
     file_to_delete = PATH_FILE
     if os.path.exists(file_to_delete):
         os.remove(file_to_delete)
