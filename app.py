@@ -159,6 +159,7 @@ def home():
 
 @app.route('/login', methods=['POST'])
 def login():
+    global current_model_id, current_model_type
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -169,6 +170,8 @@ def login():
             # Store user model information in session
             session['current_model_id'] = user.model_id
             session['current_model_type'] = user.model_type
+            current_model_id = user.model_id
+            current_model_type = user.model_type
 
             return render_template('generator.html', filename="./static/images/image.png", model_id=session['current_model_id'])
 
