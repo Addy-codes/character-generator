@@ -289,7 +289,7 @@ def process():
         return render_template('index.html', message="You have been locked out!", model_id = session['current_model_id'])
 
     if FILENAME == None or CHARACTERNAME == None:
-        return render_template('generator.html', message="Kindly generate the image first!", model_id = session['current_model_id']current_model_id)
+        return render_template('generator.html', message="Kindly generate the image first!", model_id = session['current_model_id'])
 
     if action == "keep":
         image_url = move_to_cloud_storage(FILENAME, CHARACTERNAME)
