@@ -9,4 +9,12 @@ document.addEventListener("DOMContentLoaded", function() {
       })
       .catch(error => console.error("Error loading navigation bar:", error));
   });
-  
+
+      
+  const clickHandler=(e)=>{
+    console.log('hi');
+  document.querySelector('.navbar-left').classList.add('active');
+}
+const closeHandler=(e)=>{
+  document.querySelector('.navbar-left').classList.remove('active');
+}

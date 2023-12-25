@@ -14,27 +14,43 @@
 
 <body>
     <!-- <div id="navbar-container"></div> -->
-    <div class="container1">
-        <h1>Login to Create a Character</h1>
-
-        {% if message %}
-        <p style="color: red;" class="logininput">{{ message }}</p>
-        {% endif %}
-
-        <form id="loginForm" action="{{ url_for('login') }}" method="post">
-            <div class="form-group">
-                <label for="username" class="logininput">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" class="logininput"
-                    required>
+    <div class="login-wrapper">
+        <div class="login-container">
+            <div class="loginHeading">
+                <h1><i>Qrksee...</i></h1>
+                <p>
+                    Effortlessly
+                    <span> create characters, remove backgrounds, generate 3D assets, and explore variations </span>
+                    with Al-driven ease.
+                </p>
             </div>
-            <div class="form-group">
-                <label for="password" class="logininput">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password"
-                    class="logininput" required>
+            <div id="loginPage">
+                <h1>Login</h1>
+
+                {% if message %}
+                <p style="color: red; text-align: center; max-width: 500px; margin: 0 auto;" class="logininput">{{
+                    message
+                    }}
+                </p>
+                {% endif %}
+
+                <form id="loginForm" action="{{ url_for('login') }}" method="post">
+                    <div class="new-form-group">
+                        <label for="username" class="logininput">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username"
+                            class="logininput" required>
+                    </div>
+                    <div class="new-form-group">
+                        <label for="password" class="logininput">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password"
+                            class="logininput" required>
+                    </div>
+                    <button type="submit" class="loginBtn">Login</button>
+                </form>
             </div>
-            <button type="submit" class="logininput">Login</button>
-        </form>
+        </div>
     </div>
+
 </body>
 
 </html>

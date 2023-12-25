@@ -4,25 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <title>3D Model Generator</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #000;
-            color: #fff;
+        .model-container{
+            padding: 0 30px;
+        }
+        .model-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
         }
 
         h1 {
-            color: #fff;
+            color: #895FFF;
+            font-size: 30px;
+            font-weight: 700;
+            text-align: center;
         }
 
         .upload-box {
             border: 2px dashed #ddd;
             padding: 20px;
             margin: 20px auto;
-            width: 50%;
-            /* Increased width */
+            width: 100%;
             max-width: 500px;
             height: 300px;
             /* Increased height */
@@ -32,6 +40,7 @@
             background-color: #222;
             /* Dark background for the box */
             border-radius: 10px;
+            color: white;
         }
 
         .upload-box img {
@@ -48,7 +57,7 @@
         }
 
         input[type="submit"] {
-            background-color: #4CAF50;
+            background-color: #895FFF;
             color: white;
             padding: 15px 30px;
             /* Increased padding */
@@ -56,11 +65,12 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 18px;
+            transition: all 0.3s;
             /* Larger font size */
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            opacity: 0.64;
         }
 
         .processing {
@@ -84,19 +94,24 @@
 
 <body>
     <div id="navbar-container"></div>
-    <h1>3D Model Generator</h1>
+    <div class="model-container">
+        <div class="model-wrapper">
+            <h1>3D Model Generator</h1>
 
-    <div class="upload-box" id="imagePreview">
-        <span>Image preview will appear here</span>
-    </div>
+            <div class="upload-box">
+                <span>Image preview will appear here</span>
+            </div>
 
-    <form action="/upload" method="post" enctype="multipart/form-data" class="form-group">
-        <input type="file" name="file" id="imageInput">
-        <input type="submit" value="Generate">
-    </form>
+            <form action="/upload" method="post" enctype="multipart/form-data" class="form-group">
+                <input type="file" name="file" id="imageInput">
+                <input type="submit" value="Generate">
+            </form>
 
-    <div class="processing" id="processing">
-        <p>Processing...</p>
+            <div class="processing" id="processing">
+                <p>Processing...</p>
+            </div>
+        </div>
+
     </div>
 
     <script>

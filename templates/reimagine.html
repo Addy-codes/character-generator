@@ -6,12 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Reimagine</title>
     <script src="static/js/navbar.js" defer></script>
+    <link rel="stylesheet" href="../static/css/styles.css" />
     <style>
-        body {
-            background-color: black;
-            color: white;
-            box-sizing: border-box;
+        .variation-container {
+            padding: 0 30px;
+        }
 
+        .variation-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         img {
@@ -41,21 +48,18 @@
             margin: 5px;
         }
 
-        h1,
-        h2 {
-            color: white;
-            display: flex;
-            justify-content: center;
+        .variation-wrapper h1 {
+            font-size: 30px;
+            color: #895FFF;
+            font-weight: 700;
         }
 
-        #container {
+        #uploadForm {
             width: 100%;
-            height: 100vh;
+            max-width: 500px;
             display: flex;
-            flex-direction: column;
-            /* justify-content: center; */
             align-items: center;
-            /* border: 1px solid blue; */
+            flex-direction: column;
         }
 
         input {
@@ -67,20 +71,7 @@
             color: white;
             cursor: pointer;
             margin-top: 34px;
-            margin-bottom: 10px;
-            height: 20px;
-            width: 68%;
-            margin-right: 1.5rem;
-        }
-
-        button {
-            height: 3.7rem;
-            background-color: blue;
-            border: 1px solid white;
-            border-radius: 15px;
-            color: white;
-            font-size: 14px;
-            width: 19%;
+            margin-bottom: 20px;
         }
 
         #originalImageContainer {
@@ -97,41 +88,43 @@
             width: 100%;
             height: 25rem;
             display: flex;
-
-
         }
     </style>
 </head>
 
 <body>
     <div id="navbar-container"></div>
-    <div id="container">
-        <h1>Image Variations</h1>
+    <div class="variation-container">
+        <div class="variation-wrapper">
+            <h1>Image Variations</h1>
 
-        <form method="POST" enctype="multipart/form-data" id="uploadForm">
-            <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .webp" required
-                onchange="previewImage()">
-            <button type="button" onclick="reimagineImage()">Create Variations</button>
-        </form>
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .webp" required
+                    onchange="previewImage()">
+                <button type="button" onclick="reimagineImage()" class="loginBtn">Create Variations</button>
+            </form>
 
-        <div id="imagePreview" style="display: none;">
-            <h2>Original Image</h2>
-            <div class="image-container" id="originalImageContainer">
+            <div id="imagePreview" style="display: none;">
+                <h2>Original Image</h2>
+                <div class="image-container" id="originalImageContainer">
 
-                <img id="originalImage" alt="Original Image">
+                    <img id="originalImage" alt="Original Image">
+                </div>
+
+
             </div>
 
-
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li style="color: red;">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
         </div>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li style="color: red;">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
+    </div>
     </div>
 
 

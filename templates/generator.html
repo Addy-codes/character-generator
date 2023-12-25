@@ -17,9 +17,9 @@
     <div id="navbar-container"></div>
 
     <div class="container">
-        <h1>Create a Character</h1>
         <div class="content">
             <div class="character-form-container">
+                <h1>Create a Character</h1>
                 <form id="characterForm" action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="characterName">Character Name</label>
@@ -41,7 +41,7 @@
                         <img id="imagePreview" src="#" alt="Preview">
                     </div>
                     <div class="generate-button">
-                        <button type="submit">Generate</button>
+                        <button type="submit" class="btn loginBtn">Generate</button>
                     </div>
                 </form>
             </div>
@@ -58,11 +58,10 @@
                 </div>
                 <form method="post" action="/process">
                     <div id="oneline">
-                        <button name="action" value="removebg" class="keep-button split">Remove Background</button>
+                        <button name="action" value="removebg" class="keep-button loginBtn">Remove Background</button>
                         <button name="action" value="keep" onclick="downloadImage()"
-                            class="keep-button split">Download</button>
+                            class="keep-button loginBtn">Download</button>
                     </div>
-                    <button type="submit" name="action" value="logout" class="logout-button">Logout</button>
                 </form>
             </div>
         </div>

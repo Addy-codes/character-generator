@@ -1,12 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     background-color: #000000;
     margin: 0;
     /* display: flex;
     justify-content: center; */
     /* align-items: center; */
     /* min-height: 100vh; */
-    
+
 }
 
 .container {
@@ -19,21 +27,88 @@ body {
     box-sizing: border-box;
     height: 100%;
     /* border: 1px solid red; */
-    
-    
-
 }
 
 
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
+.login-wrapper{
+    padding: 30px;
+}
+.login-container {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+    min-height: 90vh;
+}
+
+.login-container > *{
+    width: calc(50% - 15px);
+    max-width: 500px;
+}
+h1{
+    margin-bottom: 30px;
+}
+.loginHeading h1{
+    font-size: 60px;
+    color:#895FFF;
+    text-align: left;
+    font-weight: 800;
+}
+.loginHeading p{
+    font-size: 18px;
+    font-weight: 500;
     color: white;
+    line-height: 26px;
+}
+.loginHeading span{
+    font-weight: 800;
+}
+#loginPage{
+padding: 0;
+}
+#loginPage h1{
+    font-size: 40px;
+    font-weight: 700;
+    color: #895FFF;
+}
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    align-items: center;
+    padding-top: 20px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.new-form-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
+
+#loginForm .logininput {
+    width: 100%;
+    margin-left: 0;
+    border-radius: 13px;
+}
+
+.loginBtn {
+    width: 100%;
+    margin-top: 10px;
+    background-color: #895FFF;
+    border: 1px solid #895FFF;
+    font-size: 16px;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    border-radius: 30px;
+}
+
+.loginBtn:hover {
+    opacity: 0.62;
+}
+
 
 label {
     display: block;
@@ -45,7 +120,7 @@ label {
 input,
 textarea,
 button {
-    width: 140%;
+    width: 100%;
     padding: 15px;
     margin-bottom: 25px;
     border: 1px solid #ccc;
@@ -55,25 +130,11 @@ button {
 }
 
 button {
-    background-color: #007bff;
     color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s;
     font-weight: bold;
 }
 
-.split{
-    width:50%;
-    
-}
-#oneline{
-    display: flex;
-    gap: 10px;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
 
 .button-form {
     display: flex;
@@ -83,15 +144,11 @@ button:hover {
     /* Add margin between the buttons and the next element */
 }
 
-.keep-button 
-{
-    width: 50%;
+.keep-button {
+    width: 100%;
 }
 
-.logout-button {
-    width: 100%;
-    margin-bottom: 50px;
-}
+
 
 .keep-button:last-child,
 .logout-button button:last-child {
@@ -151,21 +208,49 @@ button:hover {
     height: 100%;
     object-fit: cover;
 }
-.content{
+
+.content {
     display: flex;
     /* border: 2px solid blue; */
-    gap: 20%;
-    padding: 30px;
+    gap: 60px;
+    padding: 10px 30px;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.content h1 {
+    color: #CAB7FF;
+    text-align: left;
+    font-size: 38px;
+}
+
+.content .character-form-container {
+    width: calc(50% - 20px);
+}
+
+.right-sidebar {
+    margin-top: 80px;
+}
+
+.right-sidebar form {
+    width: 100%;
+}
+
+.right-sidebar form div {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+#oneline button {
+    margin-bottom: 15px;
 }
 
 
 
-.logininput{
-    width: 50%;
-    margin-left: 324px;
-}
 /* Add this to your styles.css or a separate CSS file */
 #flappyBirdGameContainer {
     position: fixed;
@@ -173,6 +258,42 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent overlay */
-    z-index: 1000; /* Ensure the game is on top of other elements */
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Semi-transparent overlay */
+    z-index: 1000;
+    /* Ensure the game is on top of other elements */
+}
+
+@media screen and (max-width: 800px) {
+    .login-container{
+        flex-direction: column;
+    }
+    .login-container > *{
+        width: 100%;
+        max-width: 550px;
+    }
+    .loginHeading h1{
+        font-size: 40px;
+    }
+    #loginPage h1{
+        font-size: 30px;
+    }
+    .content {
+        flex-direction: column;
+    }
+
+    .content .character-form-container {
+        width: 100%;
+        max-width: 550px;
+    }
+
+    .content .right-sidebar {
+        display: flex;
+        margin-top: 0;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+        max-width: 550px;
+    }
 }

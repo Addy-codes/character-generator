@@ -207,7 +207,7 @@ def logout():
     global current_model_id, current_model_type
     current_model_type = None
     current_model_id = None
-    return render_template('index.html', message="You have been locked out!", model_id = current_model_id)
+    return render_template('index.html', message="You have been locked out!", model_id=session['current_model_id'])
 
 @app.route("/generate", methods=["GET", "POST"])
 def generate():
@@ -215,11 +215,11 @@ def generate():
     # Handling a GET request
     if request.method == 'GET':
         if current_model_id is None:
-            return render_template('index.html', message="Kindly login to your account!", model_id=current_model_id)
-        return render_template('generator.html', characterName=CHARACTERNAME, filename=FILENAME, model_id=current_model_id, description=PROMPT)
+            return render_template('index.html', message="Kindly login to your account!", model_id=session['current_model_id'])
+        return render_template('generator.html', characterName=CHARACTERNAME, filename=FILENAME, model_id=session['current_model_id'], description=PROMPT)
 
     if current_model_id == None:
-        return render_template('index.html', message="Kindly login to your account!", model_id = current_model_id)
+        return render_template('index.html', message="Kindly login to your account!", model_id=session['current_model_id'])
     data = request.form
     character_name = data["characterName"]
     prompt = data["description"]
@@ -230,7 +230,7 @@ def generate():
     # Save the generated image to temporary storage
     PROMPT = prompt
     if outline_image:
-        generator = controlnet.ControlNet(api, current_model_id, current_model_type)
+        generator = controlnet.ControlNet(api, session['current_model_id'], session['current_model_type'])
         outline_filename = secure_filename(outline_image.filename)
 
         PATH_FILE = f"{TEMP_STORAGE_FOLDER}/outline_image_{outline_filename}"
@@ -244,7 +244,7 @@ def generate():
         #generator = gRPCAPI.gRPCAPI(api)
 
         # Un-comment the below line to use RestAPIs
-        generator = RestAPI.RestAPI(api, current_model_id, current_model_type)
+        generator = RestAPI.RestAPI(api, session['current_model_id'], session['current_model_type'])
         PATH_FILE= generator.generate_images(prompt)
         filename = "image.png"
 
@@ -256,7 +256,7 @@ def generate():
     # return jsonify({"image_url": image_url, "image_id": image_id})
 
     return render_template(
-        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
+        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id=session['current_model_id'], description = PROMPT
     )
 
 # Not yet implemented
@@ -286,10 +286,10 @@ def process():
         current_model_type = None
         current_model_id = None
         print("Logging out")
-        return render_template('index.html', message="You have been locked out!", model_id = current_model_id)
+        return render_template('index.html', message="You have been locked out!", model_id = session['current_model_id'])
 
     if FILENAME == None or CHARACTERNAME == None:
-        return render_template('generator.html', message="Kindly generate the image first!", model_id = current_model_id)
+        return render_template('generator.html', message="Kindly generate the image first!", model_id = session['current_model_id']current_model_id)
 
     if action == "keep":
         image_url = move_to_cloud_storage(FILENAME, CHARACTERNAME)
@@ -297,7 +297,7 @@ def process():
     if action == "removebg":
         remove_background(FILENAME)
         return render_template(
-        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = current_model_id, description = PROMPT
+        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = session['current_model_id'], description = PROMPT
     )
 
     file_to_delete = PATH_FILE
@@ -309,13 +309,13 @@ def process():
     temp_filename = FILENAME
     FILENAME = None
     CHARACTERNAME = None
-    return render_template("generator.html",filename = temp_filename, model_id = current_model_id, characterName = temp_character_name, description = temp_prompt)
+    return render_template("generator.html",filename = temp_filename, model_id = session['current_model_id'], characterName = temp_character_name, description = temp_prompt)
 
 @app.route('/modelgen')
 def modelgen():
     global current_model_id
     if current_model_id is None:
-        return render_template('index.html', message="Kindly login to your account!", model_id=current_model_id)
+        return render_template('index.html', message="Kindly login to your account!", model_id=session['current_model_id'])
     return render_template('modelgen.html')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'}
