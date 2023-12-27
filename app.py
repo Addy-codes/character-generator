@@ -267,12 +267,17 @@ def generate():
     prompt = data["description"]
     outline_image = request.files.get("imageUpload")
     model_id = data.get("model_id")
+    model_type = None
+    for model in models:
+        if model['model_id'] == model_id:
+            model_type = model['model_type']
+            break
     # Save the generated image to temporary storage
     PROMPT = prompt
 
     if outline_image:
         
-        generator = controlnet.ControlNet(api, model_id, session['current_model_type'])
+        generator = controlnet.ControlNet(api, model_id, model_type)
         outline_filename = secure_filename(outline_image.filename)
 
         PATH_FILE = f"{TEMP_STORAGE_FOLDER}/outline_image_{outline_filename}"
@@ -286,7 +291,7 @@ def generate():
         #generator = gRPCAPI.gRPCAPI(api)
 
         # Un-comment the below line to use RestAPIs
-        generator = RestAPI.RestAPI(api, model_id, session['current_model_type'])
+        generator = RestAPI.RestAPI(api, model_id, model_type)
         PATH_FILE= generator.generate_images(prompt)
         filename = "image.png"
 
@@ -327,11 +332,12 @@ def process():
     if action == "logout":
         current_model_type = None
         models = None
+        session.clear()
         print("Logging out")
-        return render_template('index.html', message="You have been locked out!", models = session['models'])
+        return render_template('index.html', message="You have been locked out!")
 
     if FILENAME == None or CHARACTERNAME == None:
-        return render_template('generator.html', message="Kindly generate the image first!", models = session['models'])
+        return render_template('generator.html', message="Kindly generate the image first!")
 
     if action == "keep":
         image_url = move_to_cloud_storage(FILENAME, CHARACTERNAME)
