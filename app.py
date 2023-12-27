@@ -222,6 +222,7 @@ def home():
 @app.route('/login', methods=['POST'])
 def login():
     global models, current_model_type
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
