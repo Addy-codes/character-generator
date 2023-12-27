@@ -1,0 +1,69 @@
+[
+    {
+        "username": "user1",
+        "password": "password1",
+        "models": [
+            {
+                "id": "1",
+                "name": "Pop Art Style",
+                "model_id": "c64117c4-0010-471b-a7b9-caa5663b33a9",
+                "model_type": "$style"
+            },
+            {
+                "id": "2",
+                "name": "Indian Epic 1",
+                "model_id": "3c6079cb-18d7-4a23-bc4d-357299b29c54",
+                "model_type": "$style"
+            },
+            {
+                "id": "3",
+                "name": "Abhi Ch1",
+                "model_id": "c27ba912-7fe1-4a23-bd3b-8514e99415eb",
+                "model_type": "$style"
+            }
+        ],
+        "permissions": [
+            "var",
+            "3d",
+            "bgrem"
+        ]
+    },
+    {
+        "username": "rimorindianepic",
+        "password": "rimorai@123",
+        "models": [
+            {
+                "id": "1",
+                "name": "Pop Art Style",
+                "model_id": "3c6079cb-18d7-4a23-bc4d-357299b29c54",
+                "model_type": "$style"
+            },
+            {
+                "id": "2",
+                "name": "Abhi Ch1",
+                "model_id": "c27ba912-7fe1-4a23-bd3b-8514e99415eb",
+                "model_type": "$style"
+            }
+        ],
+        "permissions": [
+            "var",
+            "3d",
+            "bgrem"
+        ]
+    },
+    {
+        "username": "ishan@glip.gg",
+        "password": "shared@123",
+        "models": [
+            {
+                "id": "1",
+                "name": "Pop Art Style",
+                "model_id": "c64117c4-0010-471b-a7b9-caa5663b33a9",
+                "model_type": "$style"
+            }
+        ],
+        "permissions": [
+            "var"
+        ]
+    }
+]

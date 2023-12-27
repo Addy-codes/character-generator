@@ -171,7 +171,7 @@
     <div id="navbar-container"></div>
     <div class="variation-container">
         <div class="variation-wrapper">
-            <h1>Image Variations</h1>
+            <h1>Background Removal</h1>
             <div class="variation-detail">
                 <div class="variation-left">
                     <h1>Original Image</h1>
@@ -190,17 +190,17 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <button type="button" onclick="reimagineImage()" class="loginBtn">Create Variations</button>
+                        <button type="button" onclick="reimagineImage()" class="loginBtn">Remove Background</button>
                     </form>
                 </div>
                 <div class="variation-right">
-                    <h1>Variations</h1>
+                    <h1>Final Image</h1>
                     <div id="variations-box">
                         <div class="image-container" id="special_image">
-                            {% for variation in reimagined_variations %}
-                            <img src="data:image/jpeg;base64,{{ variation }}" alt="Reimagined Image">
-                            <a href="data:image/jpeg;base64,{{ variation }}" download>Download Image</a>
-                            {% endfor %}
+                            <img src="data:image/jpeg;base64,{{ final_image }}" alt="Reimagined Image">
+                            {% if final_image %}
+                            <a href="data:image/jpeg;base64,{{ final_image }}" download>Download Image</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

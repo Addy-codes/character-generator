@@ -10,7 +10,7 @@
     <script src="static/js/script.js" defer></script>
     <script src="static/js/navbar.js" defer></script>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
-    
+
 </head>
 
 <body>
@@ -21,6 +21,14 @@
             <div class="character-form-container">
                 <h1>Create a Character</h1>
                 <form id="characterForm" action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="model_name">Select Your Project</label>
+                        <select name="model_id" id="model_name">
+                            {% for model in models %}
+                            <option value="{{ model['model_id'] }}">{{ model['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="characterName">Character Name</label>
                         <input type="text" id="characterName" name="characterName"

@@ -22,35 +22,73 @@ from config import (
     USERNAME, 
     PASSWORD,
     api,
-    Clipdrop_api,
     MESHY_API_KEY,
     REIMAGINE_API_KEY,
     )
 
 class User:
-    def __init__(self, username, password, model_id, model_type):
+    def __init__(self, username, password, models, permissions=[], _id=None):
         self.username = username
-        self.password = password  # Plain text password
-        self.model_id = model_id
-        self.model_type = model_type
+        self.password = password  # Plain text password (not recommended)
+        self.models = models  # List of models, each with model_id and model_type
+        self.permissions = permissions
 
-    def check_password(self, entered_password):
-        # Check if the provided password matches the stored password
-        return self.password == entered_password
+    @classmethod
+    def create_user(cls, username, password, model_id, model_type, permissions=[]):
+        new_user = cls(username, password, model_id, model_type, permissions)
+        users_collection.insert_one(vars(new_user))
 
-    def authenticate(self, entered_password):
-        # Authenticate the user by checking the password
-        return self.check_password(entered_password)
+    @classmethod
+    def authenticate(cls, username, entered_password):
+        print(f"Authenticating user: {username} with password: {entered_password}")
+        user_data = users_collection.find_one({'username': username})
 
-current_model_id = None
+        if user_data:
+            print(f"User found in DB: {user_data}")
+            if user_data['password'] == entered_password:
+                print("Password match")
+                return cls(**user_data)
+            else:
+                print("Password mismatch")
+        else:
+            print("User not found in DB")
+
+        return None
+    
+    # Method to add a model to the user
+    @staticmethod
+    def add_model(username, model_id, model_type):
+        users_collection.update_one(
+            {'username': username},
+            {'$push': {'models': {'model_id': model_id, 'model_type': model_type}}}
+        )
+    
+    # Method to add a permission to the user
+    @staticmethod
+    def add_permission(username, permission):
+        users_collection.update_one(
+            {'username': username},
+            {'$push': {'permissions': permission}}
+        )
+
+    # Method to remove a permission from the user
+    @staticmethod
+    def remove_permission(username, permission):
+        users_collection.update_one(
+            {'username': username},
+            {'$pull': {'permissions': permission}}
+        )
+
+    def to_dict(self):
+        return {
+            "username": self.username,
+            "password": self.password,
+            "models": self.models,
+            "permissions": self.permissions 
+        }
+
+models = None
 current_model_type = None
-
-users = [
-    User('user1', 'password1', 'c64117c4-0010-471b-a7b9-caa5663b33a9', '$style'),
-    User('rimorindianepic', 'rimorai@123', '3c6079cb-18d7-4a23-bc4d-357299b29c54', '$style'),
-    User('abhich1', 'htshared1', 'c27ba912-7fe1-4a23-bd3b-8514e99415eb', '$style')
-    # Add more users as needed
-]
 
 app = Flask(__name__)
 app.SECRET_KEY = SECRET_KEY
@@ -59,10 +97,12 @@ app.config['SECRET_KEY'] =  SECRET_KEY
 
 # Initialize MongoDB client
 mongo_client = MongoClient(
-    f"mongodb+srv://{USERNAME}:{PASSWORD}@stable.myeot1r.mongodb.net/"
+    f"mongodb+srv://{USERNAME}:{PASSWORD}@cluster0.ugj6asi.mongodb.net/"
 )
-db = mongo_client["image_data"]
-collection = db["images"]
+db = mongo_client["qrksee"]
+collection = db.images
+users_collection = db.user_data
+
 # Initialize Google Cloud Storage client
 os.environ[
     "GOOGLE_APPLICATION_CREDENTIALS"
@@ -181,56 +221,57 @@ def home():
 
 @app.route('/login', methods=['POST'])
 def login():
-    global current_model_id, current_model_type
+    global models, current_model_type
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = next((user for user in users if user.username == username), None)
+        user = User.authenticate(username, password)
 
-        if user and user.authenticate(password):
+        if user:
             # Store user model information in session
-            session['current_model_id'] = user.model_id
-            session['current_model_type'] = user.model_type
-            current_model_id = user.model_id
-            current_model_type = user.model_type
+            session['models'] = user.models
+            session['permissions'] = user.permissions
+            models = user.models
+            print(user.models)
 
-            return render_template('generator.html', filename="./static/images/image.png", model_id=session['current_model_id'])
+            return render_template('generator.html', filename="./static/images/image.png", models=session['models'], user_permissions= session['permissions'])
 
         # In case of failure, reset the session variables
-        session.pop('current_model_id', None)
+        session.pop('models', None)
         session.pop('current_model_type', None)
+        print("User Not found")
 
     return render_template('index.html', message="Invalid username or password!")
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    global current_model_id, current_model_type
-    current_model_type = None
-    current_model_id = None
-    return render_template('index.html', message="You have been locked out!", model_id=session['current_model_id'])
+    global models
+    session.clear()
+    return render_template('index.html', message="You have been locked out!", models=session['models'], user_permissions= session['permissions'])
 
 @app.route("/generate", methods=["GET", "POST"])
 def generate():
-    global CHARACTERNAME, FILENAME, PATH_FILE, PROMPT, current_model_id, current_model_type
+    global CHARACTERNAME, FILENAME, PATH_FILE, PROMPT
+    models = session.get('models')
     # Handling a GET request
     if request.method == 'GET':
-        if current_model_id is None:
-            return render_template('index.html', message="Kindly login to your account!", model_id=session['current_model_id'])
-        return render_template('generator.html', characterName=CHARACTERNAME, filename=FILENAME, model_id=session['current_model_id'], description=PROMPT)
+        if models is None:
+            return render_template('index.html', message="Kindly login to your account!", models=session['models'], user_permissions= session['permissions'])
+        return render_template('generator.html', characterName=CHARACTERNAME, filename=FILENAME, models=session['models'], description=PROMPT, user_permissions= session['permissions'])
 
-    if current_model_id == None:
-        return render_template('index.html', message="Kindly login to your account!", model_id=session['current_model_id'])
+    if models == None:
+        return render_template('index.html', message="Kindly login to your account!", models=session['models'], user_permissions= session['permissions'])
     data = request.form
     character_name = data["characterName"]
     prompt = data["description"]
     outline_image = request.files.get("imageUpload")
-    print(
-        f"========================================================================\nGENERATED IMAGE\n{character_name} {prompt}\n ================================================================"
-    )
+    model_id = data.get("model_id")
     # Save the generated image to temporary storage
     PROMPT = prompt
+
     if outline_image:
-        generator = controlnet.ControlNet(api, session['current_model_id'], session['current_model_type'])
+        
+        generator = controlnet.ControlNet(api, model_id, session['current_model_type'])
         outline_filename = secure_filename(outline_image.filename)
 
         PATH_FILE = f"{TEMP_STORAGE_FOLDER}/outline_image_{outline_filename}"
@@ -244,7 +285,7 @@ def generate():
         #generator = gRPCAPI.gRPCAPI(api)
 
         # Un-comment the below line to use RestAPIs
-        generator = RestAPI.RestAPI(api, session['current_model_id'], session['current_model_type'])
+        generator = RestAPI.RestAPI(api, model_id, session['current_model_type'])
         PATH_FILE= generator.generate_images(prompt)
         filename = "image.png"
 
@@ -256,7 +297,7 @@ def generate():
     # return jsonify({"image_url": image_url, "image_id": image_id})
 
     return render_template(
-        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id=session['current_model_id'], description = PROMPT
+        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, models=session['models'], user_permissions= session['permissions'], description = PROMPT
     )
 
 # Not yet implemented
@@ -278,18 +319,18 @@ def generate():
 
 @app.route("/process", methods=["POST"])
 def process():
-    global FILENAME,PROMPT, CHARACTERNAME, current_model_id, current_model_type
+    global FILENAME,PROMPT, CHARACTERNAME, models, current_model_type
 
     action = request.form.get("action")
 
     if action == "logout":
         current_model_type = None
-        current_model_id = None
+        models = None
         print("Logging out")
-        return render_template('index.html', message="You have been locked out!", model_id = session['current_model_id'])
+        return render_template('index.html', message="You have been locked out!", models = session['models'])
 
     if FILENAME == None or CHARACTERNAME == None:
-        return render_template('generator.html', message="Kindly generate the image first!", model_id = session['current_model_id'])
+        return render_template('generator.html', message="Kindly generate the image first!", models = session['models'])
 
     if action == "keep":
         image_url = move_to_cloud_storage(FILENAME, CHARACTERNAME)
@@ -297,7 +338,7 @@ def process():
     if action == "removebg":
         remove_background(FILENAME)
         return render_template(
-        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, model_id = session['current_model_id'], description = PROMPT
+        "generator.html", characterName=CHARACTERNAME, filename=FILENAME, models = session['models'], description = PROMPT
     )
 
     file_to_delete = PATH_FILE
@@ -309,13 +350,13 @@ def process():
     temp_filename = FILENAME
     FILENAME = None
     CHARACTERNAME = None
-    return render_template("generator.html",filename = temp_filename, model_id = session['current_model_id'], characterName = temp_character_name, description = temp_prompt)
+    return render_template("generator.html",filename = temp_filename, models = session['models'], characterName = temp_character_name, description = temp_prompt)
 
 @app.route('/modelgen')
 def modelgen():
-    global current_model_id
-    if current_model_id is None:
-        return render_template('index.html', message="Kindly login to your account!", model_id=session['current_model_id'])
+    global models
+    if models is None:
+        return render_template('index.html', message="Kindly login to your account!", models=session['models'], user_permissions= session['permissions'])
     return render_template('modelgen.html')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'}
@@ -384,7 +425,7 @@ def upload():
 
     return "Invalid request", 400
 
-@app.route('/reimagine', methods=['GET', 'POST'])
+@app.route('/variations', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         file = request.files.get('file')
@@ -393,13 +434,41 @@ def index():
                 original_image_base64 = base64.b64encode(file.read()).decode('utf-8')
                 file.stream.seek(0)  # Reset the stream position after reading
                 reimagined_variations = reimagine_image(file.stream)
-                return render_template('download_reimagine.html', original_image=original_image_base64, reimagined_variations=reimagined_variations)
+                return render_template('reimagine.html', style='display:none;',original_image=original_image_base64, reimagined_variations=reimagined_variations)
             except Exception as e:
                 flash(str(e), 'error')
         else:
             flash('No valid file provided', 'error')
 
     return render_template('reimagine.html')
+
+@app.route('/removebg', methods=['GET', 'POST'])
+def removebg():
+    original_image = None
+    final_image = None
+
+    if request.method == 'POST':
+        file = request.files.get('file')
+        if file and allowed_file(file.filename):
+            # Save the original image
+            filename = secure_filename(file.filename)
+            file_path = os.path.join("./static/images/out/", filename)
+            file.save(file_path)
+            
+            # Get the base64 encoded string of the original image
+            original_image = get_image_base64(file_path)
+
+            # Process the image to remove the background
+            processed_file_path = remove_background(os.path.join("out/", filename))
+            final_image = get_image_base64(file_path)
+
+    return render_template('remove_background.html', original_image=original_image, final_image=final_image)
+
+def get_image_base64(file_path):
+    # Convert image to base64 for embedding in HTML
+    with open(file_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
 
 def reimagine_image(image_stream):
     REIMAGINE_API_URL = 'https://clipdrop-api.co/reimagine/v1/reimagine'

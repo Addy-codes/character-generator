@@ -4,14 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="{{ url_for('static', filename='js/game.js') }}"></script>
   <style>
-    *{
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     header {
       width: 100%;
       background-color: rgba(101, 100, 100, 0.4);
@@ -30,7 +33,8 @@
       padding: 20px 0;
       align-items: center;
     }
-    nav span{
+
+    nav span {
       display: none;
     }
 
@@ -64,31 +68,39 @@
       padding: 10px;
       transition: all 0.3s;
     }
-    .nav-form button:hover{
+
+    .nav-form button:hover {
       opacity: 0.64;
     }
-    #close,#menu{
+
+    #close,
+    #menu {
       display: none;
     }
-    @media screen and (max-width: 1000px){
-      .nav-form{
+
+    @media screen and (max-width: 1000px) {
+      .nav-form {
         width: 100px;
       }
     }
-    @media screen and (max-width: 900px){
-      .navbar-left{
+
+    @media screen and (max-width: 900px) {
+      .navbar-left {
         font-size: 14px;
       }
     }
-    @media screen and (max-width: 800px){
-      nav{
+
+    @media screen and (max-width: 800px) {
+      nav {
         justify-content: space-between;
       }
-      #menu{
+
+      #menu {
         display: block;
         color: white;
       }
-      .navbar-left{
+
+      .navbar-left {
         position: fixed;
         transform: translateX(-100%);
         flex-direction: column;
@@ -102,24 +114,26 @@
         padding: 100px 0;
         transition: all 0.4s;
         font-size: 16px;
-        gap:70px;
+        gap: 70px;
         overflow-x: hidden;
         overflow-y: auto;
       }
-      #close{
+
+      #close {
         display: inline-block;
         color: white;
         position: absolute;
         right: 20px;
         top: 20px;
       }
-    .navbar-left.active{
-      transform: translateX(0);
+
+      .navbar-left.active {
+        transform: translateX(0);
+      }
     }
-    }
-   
   </style>
 </head>
+
 <body>
   <header>
     <nav>
@@ -132,13 +146,13 @@
         <a href='generate'>Character Creation</a>
 
         <!-- Link to the Background Removal page (update the route name as per your app.py) -->
-        <a href='#'>Background Removal</a>
+        <a href='/removebg'>Background Removal</a>
 
         <!-- Link to the 3D Asset Creation page -->
         <a href='modelgen'>3D Asset Creation</a>
 
         <!-- Link to the Variations Generator page (update the route name as per your app.py) -->
-        <a href='reimagine'>Variations Generator</a>
+        <a href='variations'>Variations Generator</a>
 
       </div>
 
