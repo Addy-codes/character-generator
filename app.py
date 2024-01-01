@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash,session
+from exceptiongroup import catch
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 import os
+from io import BytesIO
 import tempfile
 import uuid
 import requests
@@ -25,6 +27,16 @@ from config import (
     MESHY_API_KEY,
     REIMAGINE_API_KEY,
     )
+
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 class User:
     def __init__(self, username, password, models, permissions=[], _id=None):
@@ -434,10 +446,64 @@ def upload():
 
 @app.route('/variations', methods=['GET', 'POST'])
 def index():
+    original_image_base64 = None
+    reimagined_variations = []
+
+    try:
+        if request.method == 'POST':
+            file = request.files.get('file')
+            if file and file.filename != '':
+                image_path = save_image(file)
+                original_image_base64 = convert_to_base64(image_path)
+                logger.info("new image used")
+            else:
+                image_path = 'out/local/uploaded_image.png'
+                logger.info("old image used")
+                if not os.path.exists(image_path):
+                    logger.info("No file chosen and saved image does not exist.")
+                    return render_template('reimagine.html', 
+                           original_image=original_image_base64, 
+                           reimagined_variations=reimagined_variations)
+
+                original_image_base64 = convert_to_base64(image_path)
+
+            with open(image_path, 'rb') as file_stream:
+                file_stream.seek(0)
+                reimagined_variations = reimagine_image(file_stream)
+
+    except Exception as e:
+        logger.exception("An error occurred: {}".format(str(e)))
+
+    return render_template('reimagine.html', 
+                           original_image=original_image_base64, 
+                           reimagined_variations=reimagined_variations)
+
+
+def save_image(file):
+    """Save the uploaded file with a fixed name, creating the directory if it doesn't exist."""
+    storage_dir = 'out/local/'
+    if not os.path.exists(storage_dir):
+        os.makedirs(storage_dir)
+
+    filename = 'uploaded_image.png'
+    file_path = os.path.join(storage_dir, filename)
+    file.save(file_path)
+    return file_path
+
+def convert_to_base64(image_path):
+    """Convert the image to base64."""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+
+def v1index(): # NOT IN USE. old v1 index used for generating variations. 
+    original_image_base64 = request.form.get('originalImage')
     if request.method == 'POST':
         file = request.files.get('file')
         if file and allowed_file(file.filename):
             try:
+                data = BytesIO()
+                file.save(data)
                 original_image_base64 = base64.b64encode(file.read()).decode('utf-8')
                 file.stream.seek(0)  # Reset the stream position after reading
                 reimagined_variations = reimagine_image(file.stream)
@@ -447,7 +513,7 @@ def index():
         else:
             flash('No valid file provided', 'error')
 
-    return render_template('reimagine.html')
+    return render_template('reimagine.html', original_image = original_image_base64)
 
 @app.route('/removebg', methods=['GET', 'POST'])
 def removebg():
@@ -503,4 +569,4 @@ def reimagine_image(image_stream):
     return variations
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run( debug = True)

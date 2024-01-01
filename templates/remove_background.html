@@ -186,12 +186,12 @@
                                     onchange="previewImage()" style="{{ style }}">
                                 <img id="originalImage" alt="Original Image" style="display: none;">
                                 {% if original_image %}
-                                <img src="{{ original_image }}" alt="Original Image" class="addedImage">
+                                <img src="data:image/png;base64,{{ original_image }}" alt="Original Image" class="addedImage">
                                 {% endif %}
                             </div>
                         </div>
                         <button type="button" onclick="reimagineImage()" class="loginBtn">Remove Background</button>
-                    </form>
+                    </form> 
                 </div>
                 <div class="variation-right">
                     <h1>Final Image</h1>

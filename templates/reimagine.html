@@ -166,7 +166,6 @@
     </style>
 </head>
 
-
 <body>
     <div id="navbar-container"></div>
     <div class="variation-container">
@@ -179,14 +178,14 @@
                     <form method="POST" enctype="multipart/form-data" id="uploadForm">
                         <div id="imagePreview">
                             <div class="image-container" id="originalImageContainer">
-                                <p style="display: none;" id="closeBtn" onclick="ccloseHandler()">
+                                <p style="display: none;" id="closeBtn" onclick="closeHandler()">
                                     <i class="fa-solid fa-xmark"></i>
                                 </p>
                                 <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .webp" required
-                                    onchange="previewImage()" style="{{ style }}">
+                                    onchange="previewImage()">
                                 <img id="originalImage" alt="Original Image" style="display: none;">
                                 {% if original_image %}
-                                <img src="{{ original_image }}" alt="Original Image" class="addedImage">
+                                    <img src="data:image/png;base64,{{ original_image }}" alt="Original Image" id="addedImage">
                                 {% endif %}
                             </div>
                         </div>
@@ -204,58 +203,100 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-
-
-            <!-- {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li style="color: red; font-size: 14px;">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %} -->
         </div>
     </div>
-    </div>
-
 
     <script>
-
         function previewImage() {
-            const input = document.querySelector('input[type="file"]');
-            const preview = document.getElementById('imagePreview');
-            const originalImage = document.getElementById('originalImage');
+            var oFReader = new FileReader();
+            oFReader.readAsDataURL(document.getElementById("file").files[0]);
 
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
+            oFReader.onload = function (oFREvent) {
+                document.getElementById("originalImage").src = oFREvent.target.result;
+                document.getElementById("originalImage").style.display = "block";
+                if(document.getElementById("addedImage")) {
+                    document.getElementById("addedImage").style.display = "none";
+                }
+            };
+        }
 
-                reader.onload = function (e) {
-                    originalImage.src = e.target.result;
-                };
-
-                reader.readAsDataURL(input.files[0]);
-
-                originalImage.style.display = 'inline-block';
-                input.style.setProperty("display", "none");
-                document.querySelector('#closeBtn').style.display = "block";
+        function closeHandler() {
+            document.getElementById("originalImage").style.display = "none";
+            if(document.getElementById("addedImage")) {
+                document.getElementById("addedImage").style.display = "block";
             }
         }
 
         function reimagineImage() {
             document.getElementById('uploadForm').submit();
         }
-        function ccloseHandler() {
-            const input = document.querySelector('input[type="file"]');
-            const originalImage = document.getElementById('originalImage');
-            input.style.display = 'inline-block';
-            originalImage.removeAttribute('src');
-            originalImage.style.display = 'none';
-            document.querySelector('#closeBtn').style.display = "none";
-            document.querySelector('.addedImage').remove();
-        }
+        // function previewImage() {
+        //     const input = document.querySelector('input[type="file"]');
+        //     const preview = document.getElementById('imagePreview');
+        //     const originalImage = document.getElementById('originalImage');
+
+        //     if (input.files && input.files[0]) {
+        //         const reader = new FileReader();
+
+        //         reader.onload = function (e) {
+        //             originalImage.src = e.target.result;
+        //             storeOriginalImage();  // Store image in Local Storage
+        //         };
+        //         reader.readAsDataURL(input.files[0]);
+
+        //         originalImage.style.display = 'inline-block';
+        //         input.style.setProperty("display", "none");
+        //         document.querySelector('#closeBtn').style.display = "block";
+        //     }
+        // }
+
+        
+
+
+        // function ccloseHandler() {
+        //     const input = document.querySelector('input[type="file"]');
+        //     const originalImage = document.getElementById('originalImage');
+        //     input.style.display = 'inline-block';
+        //     originalImage.removeAttribute('src');
+        //     originalImage.style.display = 'none';
+        //     document.querySelector('#closeBtn').style.display = "none";
+        //     document.querySelector('.addedImage').remove();
+        //     localStorage.removeItem('originalImage');
+        // }
+
+        // function storeOriginalImage() {
+        //     const originalImage = document.getElementById('originalImage');
+        //     if (originalImage.src) {
+        //         localStorage.setItem('originalImage', originalImage.src);
+        //     }
+        // }
+
+        // function displayStoredOriginalImage() {
+        //     const storedImage = localStorage.getItem('originalImage');
+        //     if (storedImage) {
+        //         const originalImage = document.getElementById('originalImage');
+        //         const input = document.querySelector('input[type="file"]');
+        //         originalImage.src = storedImage;
+        //         originalImage.style.display = 'inline-block';
+        //         input.style.display = 'none';
+        //         document.querySelector('#closeBtn').style.display = "block";
+        //     }
+        // }
+
+        // function reimagineImage() {
+        //     const originalImage = localStorage.getItem('originalImage');
+        //     document.getElementById('hiddenOriginalImage').value = originalImage;
+        //     document.getElementById('uploadForm').submit();
+        // }
+
+
+        // document.addEventListener('DOMContentLoaded', displayStoredOriginalImage);
+
+
+
+
+       
     </script>
 </body>
 
