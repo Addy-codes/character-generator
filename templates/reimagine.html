@@ -88,7 +88,7 @@
 
         .image-container {
             width: 100%;
-            height: 350px;
+            height: 500px;
             background-color: white;
             padding: 15px;
             border-radius: 20px;
@@ -178,7 +178,7 @@
                     <form method="POST" enctype="multipart/form-data" id="uploadForm">
                         <div id="imagePreview">
                             <div class="image-container" id="originalImageContainer">
-                                <p style="display: none;" id="closeBtn" onclick="ccloseHandler()">
+                                <p style="display: inline-flex;" id="closeBtn" onclick="ccloseHandler()">
                                     <i class="fa-solid fa-xmark"></i>
                                 </p>
                                 <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .webp" required

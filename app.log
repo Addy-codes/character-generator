@@ -107,3 +107,5 @@ Traceback (most recent call last):
 Exception: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
 new image used
 old image used
+new image used
+old image used
