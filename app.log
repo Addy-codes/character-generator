@@ -78,3 +78,32 @@ Traceback (most recent call last):
     dst = open(dst, "wb")
           ^^^^^^^^^^^^^^^
 FileNotFoundError: [Errno 2] No such file or directory: './static/images/out/IMG_20210123_174040.jpg'
+new image used
+An error occurred: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
+Traceback (most recent call last):
+  File "D:\rimor\character-generator\app.py", line 472, in index
+    reimagined_variations = reimagine_image(file_stream)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\rimor\character-generator\app.py", line 567, in reimagine_image
+    raise Exception(f"Reimagine API error: {response.status_code} - {error_message}")
+Exception: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
+old image used
+An error occurred: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
+Traceback (most recent call last):
+  File "D:\rimor\character-generator\app.py", line 472, in index
+    reimagined_variations = reimagine_image(file_stream)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\rimor\character-generator\app.py", line 567, in reimagine_image
+    raise Exception(f"Reimagine API error: {response.status_code} - {error_message}")
+Exception: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
+new image used
+An error occurred: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
+Traceback (most recent call last):
+  File "D:\rimor\character-generator\app.py", line 472, in index
+    reimagined_variations = reimagine_image(file_stream)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\rimor\character-generator\app.py", line 567, in reimagine_image
+    raise Exception(f"Reimagine API error: {response.status_code} - {error_message}")
+Exception: Reimagine API error: 400 - The request field image_file value is invalid: image resolution exceeds the maximum height of 1024 pixels
+new image used
+old image used

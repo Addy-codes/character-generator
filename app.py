@@ -35,7 +35,7 @@ from logging.handlers import RotatingFileHandler
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
-handler.setLevel(logging.INFO)
+handler.setLevel(logging.NOTSET)
 logger.addHandler(handler)
 
 class User:
@@ -270,7 +270,7 @@ def generate():
     if request.method == 'GET':
         if models is None:
             return render_template('index.html', message="Kindly login to your account!", models=session['models'], user_permissions= session['permissions'])
-        return render_template('generator.html', characterName=CHARACTERNAME, filename=FILENAME, models=session['models'], description=PROMPT, user_permissions= session['permissions'])
+        return render_template('generator.html', characterName=None, filename=None, models=session['models'], description = None, user_permissions= session['permissions'])
 
     if models == None:
         return render_template('index.html', message="Kindly login to your account!", models=session['models'], user_permissions= session['permissions'])

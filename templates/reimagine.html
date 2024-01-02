@@ -178,7 +178,7 @@
                     <form method="POST" enctype="multipart/form-data" id="uploadForm">
                         <div id="imagePreview">
                             <div class="image-container" id="originalImageContainer">
-                                <p style="display: none;" id="closeBtn" onclick="closeHandler()">
+                                <p style="display: none;" id="closeBtn" onclick="ccloseHandler()">
                                     <i class="fa-solid fa-xmark"></i>
                                 </p>
                                 <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .webp" required
@@ -206,6 +206,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <script>
         function previewImage() {
@@ -221,7 +222,7 @@
             };
         }
 
-        function closeHandler() {
+        function ccloseHandler() {
             document.getElementById("originalImage").style.display = "none";
             if(document.getElementById("addedImage")) {
                 document.getElementById("addedImage").style.display = "block";
@@ -254,7 +255,7 @@
         
 
 
-        // function ccloseHandler() {
+        // function cccloseHandler() {
         //     const input = document.querySelector('input[type="file"]');
         //     const originalImage = document.getElementById('originalImage');
         //     input.style.display = 'inline-block';
