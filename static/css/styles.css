@@ -63,6 +63,12 @@ h1{
     color: white;
     line-height: 26px;
 }
+.signup-link{
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    line-height: 26px;
+}
 .loginHeading span{
     font-weight: 800;
 }

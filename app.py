@@ -11,11 +11,14 @@ import gradio_client
 import shutil
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
+from werkzeug.security import generate_password_hash
 from google.cloud import storage
 from tools import (
     RestAPI, 
     controlnet, 
     test)
+
+from tools.dashboard import Dashboard
 from config import (
     BASE_PATH,
     SECRET_KEY, 
@@ -118,7 +121,7 @@ users_collection = db.user_data
 # Initialize Google Cloud Storage client
 os.environ[
     "GOOGLE_APPLICATION_CREDENTIALS"
-] = f"{BASE_PATH}/key/clever-obelisk-402805-a6790dbab289.json"
+] = f"{BASE_PATH}/key/qrksee-a59ab87bd174.json"
 storage_client = storage.Client()
 
 
@@ -133,24 +136,109 @@ PATH_FILE = None
 PROMPT = None
 
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        # Retrieve user details from form
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username and password:
+            # Check if the user already exists
+            existing_user = db.users.find_one({'username': username})
+
+            if existing_user is None:
+                # Hash the password for security
+                hashed_password = generate_password_hash(password)
+
+                # Store in MongoDB
+                db.users.insert_one({'username': username, 'password': hashed_password})
+
+                flash('Signup successful!', 'success')
+                return redirect(url_for('index'))
+            else:
+                flash('Username already exists.', 'error')
+        else:
+            flash('Missing username or password', 'error')
+
+    return render_template('signup.html')
+
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    bucket_name = 'qrksee_images'
+    username = session.get('username')
+
+    # Assuming Dashboard is properly initialized
+    dashboard = Dashboard(bucket_name, username)  # Initialize with required credentials
+    folders = dashboard.fetch_user_folders()
+    
+    return render_template('dashboard.html', folders=folders, username=username)
+
+@app.route('/dashboard/<folder_name>', methods=['GET'])
+def view_folder(folder_name):
+    bucket_name = 'qrksee_images'
+    username = session.get('username')
+
+    # Assuming Dashboard is properly initialized
+    dashboard = Dashboard(bucket_name, username)  # Initialize with required credentials
+    files = dashboard.fetch_files_in_folder(folder_name)
+
+    return render_template('folder_contents.html', files=files, folder_name=folder_name)
+
+def v1dashboard():
+    bucket_name = 'qrksee_images'
+    username = session.get('username')
+
+    # Assuming Dashboard is properly initialized and fetch_user_folders is an instance method
+    dashboard = Dashboard(bucket_name, username)  # You should initialize it with required credentials
+    folders = dashboard.fetch_user_folders()
+    
+    return render_template('dashboard.html', folders=folders)
+
 # Helper function to move files to Google Cloud Storage for character generator
 def move_to_cloud_storage(filename, folder_name):
     global PROMPT
-    bucket_name = "rimorai_bucket1"
+    username = session.get('username')
+    bucket_name = 'qrksee_images'
     bucket = storage_client.get_bucket(bucket_name)
     image_id = str(uuid.uuid4())
     # Store information about the image in MongoDB
     image_data = {
         "image_id": image_id,
-        "character_name": folder_name,
+        "character_name": f"{folder_name}",
         "prompt": PROMPT,
         }
     collection.insert_one(image_data)
     folder_name = "".join(folder_name.split())
-    blob = bucket.blob(f"{folder_name}/{image_id}_{filename}")
+    
+    # Modify the path to include the username
+    # Ensure username is also free of spaces
+    username = "".join(username.split())
+    blob = bucket.blob(f"{username}/{folder_name}/{image_id}_{filename}")
+    
     blob.upload_from_filename(f"{PATH_FILE}")
 
-    return blob.public_url
+
+
+# def v1move_to_cloud_storage(filename, folder_name):
+#     global PROMPT
+#     username = session.get('username')
+#     bucket_name = "qrksee_images"
+#     bucket = storage_client.get_bucket(bucket_name)
+#     image_id = str(uuid.uuid4())
+#     # Store information about the image in MongoDB
+#     image_data = {
+#         "image_id": image_id,
+#         "character_name": f"{folder_name}",
+#         "prompt": PROMPT,
+#         }
+#     collection.insert_one(image_data)
+#     folder_name = "".join(folder_name.split())
+#     blob = bucket.blob(f"{folder_name}/{image_id}_{filename}")
+#     blob.upload_from_filename(f"{PATH_FILE}")
+
+#     return blob.public_url
 
 # Helper function to move files to Google Cloud Storage for 3d model generator
 def upload_to_gcs(file, folder_name):
@@ -244,8 +332,10 @@ def login():
             # Store user model information in session
             session['models'] = user.models
             session['permissions'] = user.permissions
+            session['username'] = user.username
             models = user.models
             print(user.models)
+
 
             return render_template('generator.html', filename="./static/images/image.png", models=session['models'], user_permissions= session['permissions'])
 
@@ -310,7 +400,8 @@ def generate():
     CHARACTERNAME = character_name
     FILENAME = filename
 
-    # image_url = move_to_cloud_storage(filename, character_name)
+    image_url = move_to_cloud_storage(filename, character_name)
+    print("Image URL: ",image_url)
     # # # Return the generated image's URL and image ID
     # return jsonify({"image_url": image_url, "image_id": image_id})
 
@@ -570,3 +661,4 @@ def reimagine_image(image_stream):
 
 if __name__ == "__main__":
     app.run( debug = True)
+    

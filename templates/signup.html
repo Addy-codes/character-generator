@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Character Creator</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+    <!-- <script src="static/js/navbar.js" defer></script>
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script> -->
+</head>
+
+<body>
+    <!-- <div id="navbar-container"></div> -->
+    <div class="login-wrapper">
+        <div class="login-container">
+            <div class="loginHeading">
+                <h1><i>Qrksee...</i></h1>
+                <p>
+                    Effortlessly
+                    <span>create and modify assets for your gaming and animation projects</span>
+                    with AI-driven ease.
+                </p>
+            </div>
+            <div id="loginPage">
+                <h1>Sign Up</h1>
+
+                {% if message %}
+                <p style="color: red; text-align: center; max-width: 500px; margin: 0 auto;" class="logininput">{{ message }}</p>
+                {% endif %}
+
+                <form id="signupForm" action="{{ url_for('signup') }}" method="post">
+                    <div class="new-form-group">
+                        <label for="username" class="logininput">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" class="logininput" required>
+
+                        <label for="email" class="logininput">Email</label>
+                        <input type="text" id="email" name="email" placeholder="Enter Email" class="logininput" required>
+
+                        <label for="password" class="logininput">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Create a password" class="logininput" required>
+                    </div>
+                    <button type="submit" class="loginBtn">Sign Up</button>
+                </form>
+                <p class = 'signup-link'>
+                    Already have an account? <a href="{{ url_for('home') }}">Log in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
