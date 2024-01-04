@@ -1,6 +1,6 @@
 key
 rimor
-app.log
+*.log
 
 out
 static/images
