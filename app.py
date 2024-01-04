@@ -1,7 +1,9 @@
+from email import message
 from exceptiongroup import catch
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 import os
 from io import BytesIO
+from PIL import Image
 import tempfile
 import uuid
 import requests
@@ -125,6 +127,7 @@ os.environ[
 storage_client = storage.Client()
 
 
+
 # Temporary storage for uploaded images
 TEMP_STORAGE_FOLDER = "out/"
 if not os.path.exists(TEMP_STORAGE_FOLDER):
@@ -136,8 +139,7 @@ PATH_FILE = None
 PROMPT = None
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
+def v1signup():
     if request.method == 'POST':
         # Retrieve user details from form
         username = request.form.get('username')
@@ -168,23 +170,27 @@ def signup():
 def dashboard():
     bucket_name = 'qrksee_images'
     username = session.get('username')
-
-    # Assuming Dashboard is properly initialized
     dashboard = Dashboard(bucket_name, username)  # Initialize with required credentials
+
     folders = dashboard.fetch_user_folders()
-    
-    return render_template('dashboard.html', folders=folders, username=username)
+    return render_template('dashboard.html', folders=folders)
 
 @app.route('/dashboard/<folder_name>', methods=['GET'])
-def view_folder(folder_name):
+def folder_thumbnails(folder_name):
     bucket_name = 'qrksee_images'
     username = session.get('username')
-
-    # Assuming Dashboard is properly initialized
     dashboard = Dashboard(bucket_name, username)  # Initialize with required credentials
-    files = dashboard.fetch_files_in_folder(folder_name)
 
-    return render_template('folder_contents.html', files=files, folder_name=folder_name)
+    # Fetch all file pairs
+    all_file_pairs = dashboard.fetch_files_with_thumbnails()
+
+    print( "========================\n",all_file_pairs)
+    # Filter pairs to only include those in the specified folder
+    thumbnails = {key: value for key, value in all_file_pairs.items() 
+                  if "thumbnail" in key}
+    # print(thumbnails)
+    return render_template('folder.html', thumbnails=thumbnails, folder_name=folder_name)   
+
 
 def v1dashboard():
     bucket_name = 'qrksee_images'
@@ -197,31 +203,70 @@ def v1dashboard():
     return render_template('dashboard.html', folders=folders)
 
 # Helper function to move files to Google Cloud Storage for character generator
-def move_to_cloud_storage(filename, folder_name):
+def move_to_cloud_storage(filename, character_name, image_id):
     global PROMPT
 
     username = session.get('username')
     bucket_name = 'qrksee_images'
 
     bucket = storage_client.get_bucket(bucket_name)
-    image_id = str(uuid.uuid4())
     # Store information about the image in MongoDB
     image_data = {
         "image_id": image_id,
-        "character_name": f"{folder_name}",
+        "character_name": character_name,
         "prompt": PROMPT,
-        }
+    }
     collection.insert_one(image_data)
-    folder_name = "".join(folder_name.split())
+    folder_name = "".join(character_name.split())
     
     # Modify the path to include the username
-    # Ensure username is also free of spaces
     username = "".join(username.split())
     blob = bucket.blob(f"{username}/{folder_name}/{image_id}_{filename}")
     
-    blob.upload_from_filename(f"{PATH_FILE}")
+    blob.upload_from_filename(f"./static/images/{filename}")
+    return f"{username}/{folder_name}/{image_id}_{filename}"
 
+def generate_thumbnail(image_path):
+    with Image.open(image_path) as img:
+        img.thumbnail((100, 100))
+        thumb_io = BytesIO()
+        img.save(thumb_io, 'JPEG')
+        thumb_io.seek(0)
+        return thumb_io
+    
+def upload_image_and_thumbnail(image_path, character_name):
+    # Extract filename and extension
+    filename, ext = os.path.splitext(os.path.basename(image_path))
 
+    # Generate a common UUID for both original and thumbnail
+    image_id = str(uuid.uuid4())
+
+    # Define the path for static images
+    static_image_path = './static/images'
+
+    # Ensure the static images directory exists
+    if not os.path.exists(static_image_path):
+        os.makedirs(static_image_path)
+
+    # Define file paths
+    original_file_path = os.path.join(static_image_path, f"{filename}{ext}")
+    thumbnail_file_path = os.path.join(static_image_path, f"{filename}-thumbnail{ext}")
+
+    # Save original image to static path
+    os.rename(image_path, original_file_path)
+
+    # Upload original image
+    original_url = move_to_cloud_storage(f"{filename}{ext}", character_name, image_id)
+
+    # Generate and save thumbnail
+    thumbnail_io = generate_thumbnail(original_file_path)
+    with open(thumbnail_file_path, 'wb') as f:
+        f.write(thumbnail_io.read())
+
+    # Upload thumbnail
+    thumbnail_url = move_to_cloud_storage(f"{filename}-thumbnail{ext}", character_name, image_id)
+
+    return original_url, thumbnail_url
 
 # def v1move_to_cloud_storage(filename, folder_name):
 #     global PROMPT
@@ -321,6 +366,34 @@ def home():
 
     return render_template("index.html")
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        # You can add additional fields here
+        permissions = None
+        models = None
+
+        # Check if the user already exists
+        existing_user = users_collection.find_one({'username': username})
+        if existing_user is None:
+            
+
+            # Assuming you have a method in your User class to create a user
+            User.create_user(username, password, email, models, permissions)
+            flash('Signup successful!', 'success')
+
+            
+            return render_template('index.html', message="Account Created")
+        else:
+            flash('Username already exists.', 'error')
+            
+            return render_template('signup.html', message="Username already exists.")
+
+    return render_template('signup.html')
+
 @app.route('/login', methods=['POST'])
 def login():
     global models, current_model_type
@@ -402,7 +475,9 @@ def generate():
     CHARACTERNAME = character_name
     FILENAME = filename
 
-    image_url = move_to_cloud_storage(filename, character_name)
+    image_url = upload_image_and_thumbnail(f'./static/images/{filename}', character_name)
+    # print(f"====================\n filename: {filename} charatername: {character_name}\n======================")
+    # image_url = move_to_cloud_storage(filename, character_name)
     print("Image URL: ",image_url)
     # # # Return the generated image's URL and image ID
     # return jsonify({"image_url": image_url, "image_id": image_id})
