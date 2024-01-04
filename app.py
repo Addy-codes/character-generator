@@ -199,8 +199,10 @@ def v1dashboard():
 # Helper function to move files to Google Cloud Storage for character generator
 def move_to_cloud_storage(filename, folder_name):
     global PROMPT
+
     username = session.get('username')
     bucket_name = 'qrksee_images'
+
     bucket = storage_client.get_bucket(bucket_name)
     image_id = str(uuid.uuid4())
     # Store information about the image in MongoDB
@@ -242,7 +244,7 @@ def move_to_cloud_storage(filename, folder_name):
 
 # Helper function to move files to Google Cloud Storage for 3d model generator
 def upload_to_gcs(file, folder_name):
-    bucket_name = "threed-model"
+    bucket_name = "threed_model"
     bucket = storage_client.get_bucket(bucket_name)
     filename = secure_filename(file.filename)
     folder_name = "".join(folder_name.split())

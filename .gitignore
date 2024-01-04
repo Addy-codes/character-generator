@@ -1,7 +1,7 @@
 key
 rimor
+app.log
 
-*.log
 out
 static/images
 .__pycache__
