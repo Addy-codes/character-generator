@@ -1,4 +1,5 @@
 from email import message
+import email
 from exceptiongroup import catch
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 import os
@@ -44,25 +45,39 @@ handler.setLevel(logging.NOTSET)
 logger.addHandler(handler)
 
 class User:
-    def __init__(self, username, password, models, permissions=[], _id=None):
+    def __init__(self, username, password, models, permissions=[], email=None, _id=None):
         self.username = username
         self.password = password  # Plain text password (not recommended)
         self.models = models  # List of models, each with model_id and model_type
         self.permissions = permissions
+        self.email = email
 
     @classmethod
-    def create_user(cls, username, password, model_id, model_type, permissions=[]):
-        new_user = cls(username, password, model_id, model_type, permissions)
-        users_collection.insert_one(vars(new_user))
+    def create_user(cls, username, password, email, models=None, permissions=None):
+        if models is None:
+            models = []
+        if permissions is None:
+            permissions = []
+
+        new_user = {
+            "username": username,
+            "password": password,  # This should be a hashed password
+            "email": email,
+            "models": models,
+            "permissions": permissions
+        }
+        users_collection.insert_one(new_user)
 
     @classmethod
-    def authenticate(cls, username, entered_password):
-        print(f"Authenticating user: {username} with password: {entered_password}")
-        user_data = users_collection.find_one({'username': username})
+    def authenticate(cls, login, entered_password):
+        print(f"Authenticating with: {login} and password: {entered_password}")
+        
+        # Searching for user by username or email
+        user_data = users_collection.find_one({'$or': [{'username': login}, {'email': login}]})
 
         if user_data:
             print(f"User found in DB: {user_data}")
-            if user_data['password'] == entered_password:
+            if user_data['password'] == entered_password:  # Assuming password is stored in plain text
                 print("Password match")
                 return cls(**user_data)
             else:
@@ -191,6 +206,9 @@ def folder_thumbnails(folder_name):
     # print(thumbnails)
     return render_template('folder.html', thumbnails=thumbnails, folder_name=folder_name)   
 
+@app.route('/forgot-password')
+def forgot_password():
+    return render_template('forgot_password.html')
 
 def v1dashboard():
     bucket_name = 'qrksee_images'
@@ -371,6 +389,24 @@ def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
+        password = request.form.get('password')  # This should be hashed before storing
+
+        # Check if the user already exists
+        existing_user = users_collection.find_one({'$or': [{'username': username}, {'email': email}]})
+        if existing_user is None:
+            User.create_user(username, password, email)
+            flash('Signup successful!', 'success')
+            return render_template('index.html', message="Account Created")
+        else:
+            flash('Username or email already exists.', 'error')
+            return render_template('signup.html', message="Username or email already exists.")
+
+    return render_template('signup.html')
+
+def v1signup():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
         # You can add additional fields here
         permissions = None
@@ -399,9 +435,9 @@ def login():
     global models, current_model_type
     
     if request.method == 'POST':
-        username = request.form['username']
+        login = request.form['login']  # 'login' can be either username or email
         password = request.form['password']
-        user = User.authenticate(username, password)
+        user = User.authenticate(login, password)
 
         if user:
             # Store user model information in session
@@ -411,7 +447,6 @@ def login():
             models = user.models
             print(user.models)
 
-
             return render_template('generator.html', filename="./static/images/image.png", models=session['models'], user_permissions= session['permissions'])
 
         # In case of failure, reset the session variables
@@ -420,7 +455,6 @@ def login():
         print("User Not found")
 
     return render_template('index.html', message="Invalid username or password!")
-
 @app.route('/logout', methods=['POST'])
 def logout():
     global models
@@ -611,7 +645,6 @@ def upload():
             time.sleep(5)  # Adjust the sleep time as needed
 
     return "Invalid request", 400
-
 @app.route('/variations', methods=['GET', 'POST'])
 def index():
     original_image_base64 = None
@@ -619,6 +652,7 @@ def index():
 
     try:
         if request.method == 'POST':
+            print(request.data)
             file = request.files.get('file')
             if file and file.filename != '':
                 image_path = save_image(file)
