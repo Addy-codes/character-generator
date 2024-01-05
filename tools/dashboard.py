@@ -1,5 +1,6 @@
 from google.cloud import storage
 import sys
+import re
 import os
 BASE_PATH = os.getcwd()
 sys.path.append(BASE_PATH)
@@ -11,54 +12,77 @@ os.environ[
 
 class Dashboard:
     def __init__(self, bucket_name, username):
-        # Initialize the Google Cloud Storage client and set the bucket name
-        self.storage_client = storage.Client()
         self.bucket_name = bucket_name
         self.username = username
-
+        self.storage_client = storage.Client()
+        self.bucket = self.storage_client.get_bucket(bucket_name)
 
     def fetch_user_folders(self):
-        # Fetch the username
-        username = self.username
-        if not username:
-            return "User not logged in or session expired."
-
-        # Access the bucket
-        bucket = self.storage_client.get_bucket(self.bucket_name)
-
-        # Ensure username is also free of spaces, if required
-        username = "".join(username.split())
-
-        # Prepare the prefix to fetch items from the folder named after the username
+        username = "".join(self.username.split())
         prefix = f"{username}/"
+        # print("Prefix:", prefix)
 
-        # List all 'folders' in the directory named after the username
-        iterator = bucket.list_blobs(prefix=prefix, delimiter='/')
-        folders = []
+        # Initialize an empty set for folder names
+        folder_names = set()
 
-        # The iterator includes a 'prefixes' attribute for sub-directory names (folders)
-        for page in iterator.pages:
-            # Strip the username and the trailing slash from each prefix
-            folders.extend([folder[len(prefix):].rstrip('/') for folder in page.prefixes])
+        # Create an iterator to list the blobs
+        iterator = self.bucket.list_blobs(prefix=prefix, delimiter='/')
+        # print("Iterator:", iterator)
 
-        print(f"Folders: {folders}")
+        # Fetch all blobs and prefixes
+        response = iterator._get_next_page_response()
+        # print("Response:", response)
 
-        return folders
+        # Extracting folder names from the 'prefixes' key in the response dictionary
+        if 'prefixes' in response:
+            for p in response['prefixes']:
+                # print("Found Prefix:", p)
+                folder_name = p.split('/')[-2]  # Getting the folder name
+                folder_names.add(folder_name)
 
-    def fetch_files_in_folder(self, folder_name):
-        # Access the bucket
-        bucket = self.storage_client.get_bucket(self.bucket_name)
+        # Extracting from blobs if necessary
+        for blob in iterator:
+            # print("Found Blob:", blob.name)
+            path_parts = blob.name.split('/')
+            if len(path_parts) > 1:
+                folder_names.add(path_parts[1])
 
-        # Prepare the full prefix to fetch items from the specific folder under the username
-        full_prefix = f"{self.username}/{folder_name}/"
+        if not folder_names:
+            print("No folders found under the specified path.")
 
-        # List all files in the specified folder
-        blobs = bucket.list_blobs(prefix=full_prefix)
-        files = [blob.name[len(full_prefix):] for blob in blobs if not blob.name.endswith('/')]
+        return list(folder_names)
 
-        return files
+    def get_public_url(self, blob_name):
+        return f"https://storage.googleapis.com/{self.bucket_name}/{blob_name}"
 
-# Example of how to use this class
-# dashboard = Dashboard("qrksee_images", 'user1')
-# files = dashboard.fetch_user_folders()
-# print(files)
+    def fetch_files_with_thumbnails(self):
+
+        # Iterate through each folder
+        for folder_name in self.fetch_user_folders():
+            prefix = f"{self.username}/{folder_name}/"
+            file_pairs = {}
+
+            # Fetch all files within the folder
+            blobs = self.storage_client.list_blobs(self.bucket, prefix=prefix)
+            for blob in blobs:
+                # Check if the file is a thumbnail
+                if 'thumbnail' in blob.name:
+                    # Extract the base filename
+                    base_filename = re.sub(r"-thumbnail\..*$", "", blob.name)
+                    thumbnail_filename = blob.name
+                    # Generate public URLs
+                    thumbnail_url = self.get_public_url(thumbnail_filename)
+                    original_file_url = self.get_public_url(f"{base_filename}.png")
+                    file_pairs[thumbnail_url] = original_file_url
+
+        return file_pairs
+
+
+# Example usage
+# dashboard = Dashboard("qrksee_images", "user1")
+
+# file_pairs = dashboard.fetch_files_with_thumbnails()
+# print(file_pairs)
+
+# folders = dashboard.fetch_user_folders()
+# print(folders)

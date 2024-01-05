@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Thumbnails in {{ folder_name }}</title>
+    <style>
+        /* Style for the image preview box */
+        #image-preview {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #ccc;
+            background-color: white;
+            padding: 10px;
+            z-index: 1000;
+        }
+        #image-preview img {
+            max-width: 80vw;
+            max-height: 80vh;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 500;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thumbnails in {{ folder_name }}</h1>
+    <div>
+        {% for thumbnail_url, original_url in thumbnails.items() %}
+            <div>
+                <!-- Clickable thumbnail image -->
+                <img src="{{ thumbnail_url }}" alt="Thumbnail" style="width: 100px; height: auto;" onclick="showPreview('{{ original_url }}')">
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Image preview box -->
+    <div id="overlay"></div>
+    <div id="image-preview">
+        <img id="preview-img" src="" alt="Preview">
+        <br>
+        <button onclick="downloadImage()">Download</button>
+        <button onclick="closePreview()">Close</button>
+    </div>
+
+    <script>
+        function showPreview(imageUrl) {
+            document.getElementById('preview-img').src = imageUrl;
+            document.getElementById('image-preview').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function downloadImage() {
+            var imageUrl = document.getElementById('preview-img').src;
+            var link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = imageUrl.split('/').pop();  // Extracts the filename from the URL
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function closePreview() {
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

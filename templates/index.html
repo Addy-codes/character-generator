@@ -36,8 +36,8 @@
 
                 <form id="loginForm" action="{{ url_for('login') }}" method="post">
                     <div class="new-form-group">
-                        <label for="username" class="logininput">Username</label>
-                        <input type="text" id="username" name="username" placeholder="Enter your username"
+                        <label for="username" class="logininput">Email or Username</label>
+                        <input type="text" id="username" name="login" placeholder="Enter your email or username"
                             class="logininput" required>
                     </div>
                     <div class="new-form-group">
@@ -48,7 +48,11 @@
                     <button type="submit" class="loginBtn">Login</button>
                 </form>
                 <p class="signup-link">
-                    Don't have an account? <a href="{{ url_for('signup') }}">Sign up here</a>
+                    Don't have an account? <a href="{{ url_for('signup') }}">Sign up here</a></p>
+                <p class="signup-link"> 
+                    <!-- Forgot your password?   -->
+                    <a href="{{ url_for('forgot_password') }}">Forgot My Password</a>
+                </p>
             </div>
         </div>
     </div>

@@ -66,8 +66,16 @@ h1{
 .signup-link{
     font-size: 18px;
     font-weight: 500;
-    color: white;
     line-height: 26px;
+    color: #fff;
+}
+.signup-link a {
+    color: #0F9D58; /* Example: bright green */
+    text-decoration: none; /* Optional: removes the underline */
+}
+
+.signup-link a:hover {
+    color: #35E3AC; /* A different color for when the mouse hovers over the link */
 }
 .loginHeading span{
     font-weight: 800;
