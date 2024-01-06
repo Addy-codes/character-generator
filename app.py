@@ -35,15 +35,6 @@ from config import (
     REIMAGINE_API_KEY,
     )
 
-import logging
-from logging.handlers import RotatingFileHandler
-
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
-handler.setLevel(logging.NOTSET)
-logger.addHandler(handler)
 
 class User:
     def __init__(self, username, password, models, permissions=[], email=None, _id=None):
@@ -630,12 +621,12 @@ def index():
             if file and file.filename != '':
                 image_path = save_image(file)
                 original_image_base64 = convert_to_base64(image_path)
-                logger.info("new image used")
+                print("new image used")
             else:
                 image_path = 'out/local/uploaded_image.png'
-                logger.info("old image used")
+                print("old image used")
                 if not os.path.exists(image_path):
-                    logger.info("No file chosen and saved image does not exist.")
+                    print("No file chosen and saved image does not exist.")
                     return render_template('reimagine.html', 
                            original_image=original_image_base64, 
                            reimagined_variations=reimagined_variations)
@@ -645,9 +636,14 @@ def index():
             with open(image_path, 'rb') as file_stream:
                 file_stream.seek(0)
                 reimagined_variations = reimagine_image(file_stream)
+            return jsonify({
+                    'original_image': original_image_base64,
+                    'reimagined_variations': reimagined_variations
+                })
+
 
     except Exception as e:
-        logger.exception("An error occurred: {}".format(str(e)))
+        print("An error occurred: {}".format(str(e)))
 
     return render_template('reimagine.html', 
                            original_image=original_image_base64, 

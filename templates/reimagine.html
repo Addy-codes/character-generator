@@ -15,8 +15,8 @@
             border: 5px solid #f3f3f3; /* Light grey */
             border-top: 5px solid #3498db; /* Blue */
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 10px;
+            height: 10px;
             animation: spin 2s linear infinite;
         }
         
@@ -170,7 +170,14 @@
                 width: 100%;
             }
         }
-        
+            #alternateLoader {
+                display: none; /* Hidden by default */
+                text-align: center;
+                margin-top: 20px;
+                font-size: 20px;
+                color: #895FFF;
+            }
+  
     </style>
 </head>
 
@@ -203,6 +210,7 @@
                 </div>
                 <div class="variation-right">
                     <h1>Variations</h1>
+                    <div id="alternateLoader" style="display: none;">Loading...</div>
                     <div id="variations-box">
                         <div class="image-container" id="special_image">
                             <!-- The loading indicator will be displayed here -->
@@ -245,12 +253,170 @@
                 }
             };
         }
+
+        function showLoader() {
+            var primaryLoader = document.getElementById("loadingIndicator");
+            var alternateLoader = document.getElementById("alternateLoader");
         
+            if (primaryLoader) {
+                primaryLoader.style.display = "flex";
+            } else if (alternateLoader) {
+                alternateLoader.style.display = "block"; // Show alternate loader
+            }
+        }
+        
+        function hideLoader() {
+            var primaryLoader = document.getElementById("loadingIndicator");
+            var alternateLoader = document.getElementById("alternateLoader");
+        
+            if (primaryLoader) {
+                primaryLoader.style.display = "none";
+            } else if (alternateLoader) {
+                alternateLoader.style.display = "none"; // Hide alternate loader
+            }
+        }
+        
+        function reimagineImage(event) {
+            event.preventDefault(); 
+        
+            var loadingIndicator = document.getElementById("loadingIndicator");
+            if (loadingIndicator) {
+                loadingIndicator.style.display = "flex";
+            } else {
+                console.warn("Loading indicator element not found; continuing without it.");
+            }
+        
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var img = document.getElementById("originalImage");
+        
+            if (img.complete && img.naturalHeight !== 0) {
+                cropAndProcessImage(img, canvas, ctx);
+            } else {
+                img.onload = function() {
+                    cropAndProcessImage(img, canvas, ctx);
+                };
+            }
+        }
 
+
+        function v1reimagineImage(event) {
+            event.preventDefault(); 
+            document.getElementById("loadingIndicator").style.display = "flex";
+            
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var img = document.getElementById("originalImage");
+        
+            if (img.complete && img.naturalHeight !== 0) {
+                cropAndProcessImage(img, canvas, ctx);
+            } else {
+                img.onload = function() {
+                    cropAndProcessImage(img, canvas, ctx);
+                };
+            }
+        }
 
         
+        function cropAndProcessImage(img, canvas, ctx) {
+            // Determine the smaller dimension to make a square crop
+            var minDimension = Math.min(img.naturalWidth, img.naturalHeight);
+        
+            // Ensure the cropped dimensions do not exceed the API limit
+            var cropDimension = Math.min(minDimension, 1024);
+            canvas.width = cropDimension;
+            canvas.height = cropDimension;
+        
+            // Calculate the top left corner of the cropped area
+            var startX = (img.naturalWidth - minDimension) / 2;
+            var startY = (img.naturalHeight - minDimension) / 2;
+        
+            // Draw the image onto the canvas
+            ctx.drawImage(img, startX, startY, cropDimension, cropDimension, 0, 0, cropDimension, cropDimension);
+        
+            // Convert the canvas to a Blob and send it in FormData
+            canvas.toBlob(function (blob) {
+                var formData = new FormData();
+                formData.append('file', blob, 'cropped-image.png');
+                
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/variations', true);
+                xhr.onload = function () {
+                    hideLoader();  
+                    var loadingIndicator = document.getElementById("loadingIndicator");
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = "none";
+                    }
+                
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        var specialImageDiv = document.getElementById("special_image");
+                        specialImageDiv.innerHTML = '';
+                        response.reimagined_variations.forEach(function(variation) {
+                            var img = document.createElement('img');
+                            img.src = 'data:image/jpeg;base64,' + variation;
+                            img.alt = 'Reimagined Image';
+                            
+                            var downloadLink = document.createElement('a');
+                            downloadLink.href = 'data:image/jpeg;base64,' + variation;
+                            downloadLink.download = 'Reimagined Image';
+                            downloadLink.innerText = 'Download Image';
+                
+                            specialImageDiv.appendChild(img);
+                            specialImageDiv.appendChild(downloadLink);
+                        });
+                        
+                    } else {
+                        console.error("Error uploading image");
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    hideLoader();
+                    var loadingIndicator = document.getElementById("loadingIndicator");
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = "none";
+                    }
+                    console.error("Error during AJAX request");
+                };
+                // xhr.onload = function () {
+                //     // Hide the loading indicator
+                //     document.getElementById("loadingIndicator").style.display = "none";
+        
+                //     if (xhr.status === 200) {
+                //         var response = JSON.parse(xhr.responseText);
+                //         var specialImageDiv = document.getElementById("special_image");
+                //         specialImageDiv.innerHTML = '';
+                        
+                //         response.reimagined_variations.forEach(function(variation) {
+                //             var img = document.createElement('img');
+                //             img.src = 'data:image/jpeg;base64,' + variation;
+                //             img.alt = 'Reimagined Image';
+                            
+                //             var downloadLink = document.createElement('a');
+                //             downloadLink.href = 'data:image/jpeg;base64,' + variation;
+                //             downloadLink.download = 'Reimagined Image';
+                //             downloadLink.innerText = 'Download Image';
+        
+                //             specialImageDiv.appendChild(img);
+                //             specialImageDiv.appendChild(downloadLink);
+                //         });
+                //     } else {
+                //         console.error("Error uploading image");
+                //     }
+                // };
+        
+                // xhr.onerror = function() {
+                //     // Hide the loading indicator in case of error
+                //     document.getElementById("loadingIndicator").style.display = "none";
+                //     console.error("Error during AJAX request");
+                // };
+        
+                xhr.send(formData);
+            }, 'image/png');
+        }
 
-        function reimagineImage() {
+        {/* function reimagineImage(){
             
         
             // Show the loading indicator
@@ -272,7 +438,7 @@
             canvas.toBlob(function (blob) {
                 var formData = new FormData();
                 formData.append('file', blob, 'cropped-image.png');
-        
+                
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', '/variations', true);
                 xhr.onload = function () {
@@ -283,12 +449,12 @@
                         var response = JSON.parse(xhr.responseText);
                         var specialImageDiv = document.getElementById("special_image");
                         specialImageDiv.innerHTML = '';
-        
+                        
                         response.reimagined_variations.forEach(function(variation) {
                             var img = document.createElement('img');
                             img.src = 'data:image/jpeg;base64,' + variation;
                             img.alt = 'Reimagined Image';
-        
+                            
                             var downloadLink = document.createElement('a');
                             downloadLink.href = 'data:image/jpeg;base64,' + variation;
                             downloadLink.download = 'Reimagined Image';
@@ -310,29 +476,33 @@
         
                 xhr.send(formData);
             }, 'image/png');
-        }
+        } */}
         
-        function ccloseHandler() {
+        function ccloseHandler(){
             document.getElementById("originalImage").style.display = "none";
             if (document.getElementById("addedImage")) {
                 document.getElementById("addedImage").style.display = "block";
             }
         }
         
-
-
-
-
-
-
-
-
-
+        
+        
+        
+        
+        {/* function reimagineImage() {
+            document.getElementById('uploadForm').submit();
+        }
+         */}
+        
+        
+        
+        
+        
         {/* v1
         function previewImage() {
             var oFReader = new FileReader();
             oFReader.readAsDataURL(document.getElementById("file").files[0]);
-
+            
             oFReader.onload = function (oFREvent) {
                 document.getElementById("originalImage").src = oFREvent.target.result;
                 document.getElementById("originalImage").style.display = "block";
