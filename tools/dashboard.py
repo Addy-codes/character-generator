@@ -59,31 +59,31 @@ class Dashboard:
     def fetch_files_with_thumbnails(self, folder_name):
 
         # Iterate through each folder
-        for folder_name in self.fetch_user_folders():
-            prefix = f"{self.username}/{folder_name}/"
-            file_pairs = {}
+        # for folder_name in self.fetch_user_folders():
+        prefix = f"{self.username}/{folder_name}/"
+        file_pairs = {}
 
-            # Fetch all files within the folder
-            blobs = self.storage_client.list_blobs(self.bucket, prefix=prefix)
-            for blob in blobs:
-                # Check if the file is a thumbnail
-                if 'thumbnail' in blob.name:
-                    # Extract the base filename
-                    base_filename = re.sub(r"-thumbnail\..*$", "", blob.name)
-                    thumbnail_filename = blob.name
-                    # Generate public URLs
-                    thumbnail_url = self.get_public_url(thumbnail_filename)
-                    original_file_url = self.get_public_url(f"{base_filename}.png")
-                    file_pairs[thumbnail_url] = original_file_url
+        # Fetch all files within the folder
+        blobs = self.storage_client.list_blobs(self.bucket, prefix=prefix)
+        for blob in blobs:
+            # Check if the file is a thumbnail
+            if 'thumbnail' in blob.name:
+                # Extract the base filename
+                base_filename = re.sub(r"-thumbnail\..*$", "", blob.name)
+                thumbnail_filename = blob.name
+                # Generate public URLs
+                thumbnail_url = self.get_public_url(thumbnail_filename)
+                original_file_url = self.get_public_url(f"{base_filename}.png")
+                file_pairs[thumbnail_url] = original_file_url
 
         return file_pairs
 
 
 # Example usage
-# dashboard = Dashboard("qrksee_images", "user1")
+dashboard = Dashboard("qrksee_images", "user1")
 
-# file_pairs = dashboard.fetch_files_with_thumbnails()
-# print(file_pairs)
+file_pairs = dashboard.fetch_files_with_thumbnails('tomhanks')
+print(file_pairs)
 
 # folders = dashboard.fetch_user_folders()
 # print(folders)

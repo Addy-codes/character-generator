@@ -1,5 +1,6 @@
 from email import message
 import email
+from types import NoneType
 from exceptiongroup import catch
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 import os
@@ -23,7 +24,7 @@ from tools import (
     test)
 
 from tools.dashboard import Dashboard
-from config import (
+from config import (    
     BASE_PATH,
     SECRET_KEY, 
     MONGO_URL, 
@@ -298,7 +299,8 @@ def remove_background(file_path):
     image_url = get_public_url(file_path)
 
     # Initialize the Gradio client
-    client = gradio_client.Client("https://eccv2022-dis-background-removal.hf.space/--replicas/l8swv/")
+    # client = gradio_client.Client("https://eccv2022-dis-background-removal.hf.space/--replicas/l8swv/")
+    client = gradio_client.Client("https://eccv2022-dis-background-removal.hf.space/--replicas/oixln/")
     
     # Call the API to remove the background
     result = client.predict(image_url, api_name="/predict")
@@ -707,7 +709,8 @@ def removebg():
             processed_file_path = remove_background(os.path.join("out/", filename))
             final_image = get_image_base64(file_path)
 
-    return render_template('remove_background.html', original_image=original_image, final_image=final_image)
+            return render_template('remove_background.html', original_image=original_image, final_image=final_image)
+    return render_template('remove_background.html', original_image=original_image, final_image=None)
 
 def get_image_base64(file_path):
     # Convert image to base64 for embedding in HTML
