@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Character Creator</title>
     <link rel="stylesheet" href="../static/css/styles.css">  
-    <link rel="stylesheet" href="../static/css/main.35d6d53d.css">
+    <link rel="stylesheet" href="../static/css/main.9a83a3f5.css">
     <script src="../static/js/script.js" defer></script>
     <script src="../static/js/navbar.js" defer></script>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
@@ -20,7 +20,7 @@
     <div class="container">
         <div class="content">
             <div class="character-form-container">
-                <h1>Create a Character</h1>
+                <h1>Create an Asset</h1>
                 <form id="characterForm" action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="model_name">Select Your Project</label>
@@ -45,7 +45,9 @@
                     <div class="form-group">
                         <label for="imageUpload">Upload Outline Image (Optional)</label>
                         <div id='tldraw'></div>
+                        
                     </div>
+                    
                     <div class="preview-box">
                         <img id="imagePreview" src="#" alt="Preview">
                     </div>
@@ -86,7 +88,7 @@
             document.body.removeChild(downloadLink);
         }
     </script>
-   <script defer="defer" src="/static/js/main.4f844046.js"></script>
+   <script defer="defer" src="/static/js/main.e332a622.js"></script>
 
    <script>
     const button = document.getElementById('generateButton');
