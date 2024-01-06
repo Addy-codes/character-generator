@@ -10,6 +10,7 @@ os.environ[
     "GOOGLE_APPLICATION_CREDENTIALS"
 ] = f"{BASE_PATH}/key/qrksee-a59ab87bd174.json"
 
+
 class Dashboard:
     def __init__(self, bucket_name, username):
         self.bucket_name = bucket_name
@@ -55,7 +56,7 @@ class Dashboard:
     def get_public_url(self, blob_name):
         return f"https://storage.googleapis.com/{self.bucket_name}/{blob_name}"
 
-    def fetch_files_with_thumbnails(self):
+    def fetch_files_with_thumbnails(self, folder_name):
 
         # Iterate through each folder
         for folder_name in self.fetch_user_folders():
