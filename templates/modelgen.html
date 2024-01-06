@@ -3,133 +3,282 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>3D Model Generator</title>
-    <link rel="stylesheet" href="../static/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Reimagine</title>
+    <script src="static/js/navbar.js" defer></script>
+    <link rel="stylesheet" href="../static/css/styles.css" />
+    <link rel="stylesheet" href="../static/css/viewer.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        .model-container{
+        .variation-container {
             padding: 0 30px;
         }
-        .model-wrapper {
+
+        .variation-wrapper {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            align-items: center;
+        }
+
+        .variation-detail {
+            width: 100%;
             display: flex;
-            justify-content: center;
+            gap: 50px;
+            margin-bottom: 20px;
+            justify-content: space-between;
+        }
+
+
+        .variation-wrapper h1 {
+            font-size: 30px;
+            color: #895FFF;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .variation-wrapper h2 {
+            font-size: 20px;
+            color: #B2BEB5;
+            font-weight: 200;
+            text-align: center;
+            margin-bottom: 30px;
+
+        }
+
+        .variation-detail>* {
+            width: 50%;
+        }
+
+        #uploadForm {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
             flex-direction: column;
         }
 
-        h1 {
-            color: #895FFF;
-            font-size: 30px;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        .upload-box {
-            border: 2px dashed #ddd;
-            padding: 20px;
-            margin: 20px auto;
-            width: 100%;
-            max-width: 500px;
-            height: 300px;
-            /* Increased height */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #222;
-            /* Dark background for the box */
-            border-radius: 10px;
-            color: white;
-        }
-
-        .upload-box img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .form-group {
-            margin: 20px 0;
-        }
-
-        input[type="file"] {
+        input {
+            font-size: 16px;
+            border-radius: 14px;
+            cursor: pointer;
             margin-bottom: 10px;
+            flex-shrink: 0;
+            width: max-content;
         }
 
-        input[type="submit"] {
+        input[type=file] {
+            background-color: transparent;
+            border: none;
+        }
+
+        input::-webkit-file-upload-button {
+            padding: 10px 20px;
             background-color: #895FFF;
             color: white;
-            padding: 15px 30px;
-            /* Increased padding */
+            border-radius: 10px;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s;
-            /* Larger font size */
         }
 
-        input[type="submit"]:hover {
+        #imagePreview {
+            max-height: unset !important;
+            margin-top: unset !important;
+            width: 100%;
+        }
+
+        #imagePreview h2 {
+            font-size: 30px;
+            color: #895FFF;
+            font-weight: 700;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 500px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 20px;
+            display: flex;
+        }
+
+        #originalImageContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-container #originalImage,
+        .variation-container img {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 350px;
+        }
+
+        .variations-box {
+            width: 100%;
+        }
+
+        .image-container {
+            position: relative;
+            align-items: center;
+        }
+
+        .image-container a {
+            position: absolute;
+            bottom: -20PX;
+            left: 0;
+            transform: translateY(100%);
+            width: 100%;
+            font-size: 15px;
+            color: white;
+            font-weight: 700;
+            background-color: #895FFF;
+            text-decoration: none;
+            padding: 15px;
+            text-align: center;
+            border-radius: 30px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .image-container a:hover {
             opacity: 0.64;
         }
 
-        .processing {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-size: 24px;
-            z-index: 1000;
+        #closeBtn {
+            align-self: flex-end;
+        }
+
+        @media screen and (max-width: 800px) {
+            .variation-detail {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .variation-detail>* {
+                width: 100%;
+                max-width: 500px;
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+            }
+
+            #variations-box {
+                width: 100%;
+            }
         }
     </style>
-    <script src="../static/js/navbar.js" defer></script>
 </head>
 
 <body>
     <div id="navbar-container"></div>
-    <div class="model-container">
-        <div class="model-wrapper">
+    <div class="variation-container">
+        <div class="variation-wrapper">
             <h1>3D Model Generator</h1>
+            <h2>(This is a preview. For actual 3D model generation, please contact us.)</h2>
+            <div class="variation-detail">
+                <div class="variation-left">
+                    <h1>Image</h1>
 
-            <div class="upload-box">
-                <span>Image preview will appear here</span>
-            </div>
-
-            <form action="/upload" method="post" enctype="multipart/form-data" class="form-group">
-                <input type="file" name="file" id="imageInput">
-                <input type="submit" value="Generate">
-            </form>
-
-            <div class="processing" id="processing">
-                <p>Processing...</p>
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div id="imagePreview">
+                            <div class="image-container" id="originalImageContainer">
+                                <img src="/static/images/mitsubishi.png" style="object-fit: contain;">
+                            </div>
+                        </div>
+                        <button type="button" onclick="reimagineImage()" class="loginBtn">Generate Model</button>
+                    </form>
+                </div>
+                <div class="variation-right">
+                    <h1>3D Model</h1>
+                    <div id="variations-box">
+                        <div class='wrapper'>
+                            <div class='header' style='display: none;' >
+                                <div class="header-left" style="display: none;""> 
+                                    
+                                    <input type='file' id='fileInput' accept='.glb'>
+                                    <label for='fileInput' class='header-item' id='browseModelBtn'>
+                                        <div class='header-icon'><i class='fa fa-folder'></i></div>
+                                        <div class='header-title'>Browse .GLB File</div>
+                                    </label>
+                                </div>
+                                
+                            </div>
+                            <div class='viewer-wrapper'>
+                                <div id='viewerCanvasWrapper'>
+                                </div>
+                                <div class='left-sidebar' id='modelBrowser' style='display: none;'>
+                                    <div class='sidebar-content' id='modelBrowserContent'>
+                                        <div class='graph-item-wrapper'>
+                                            <div class='graph-item'>
+                                                <div class='graph-left'>
+                                                    <div class='graph-folder'>
+                                                        <i class='fa fa-folder'></i>
+                                                    </div>
+                                                    <div class='graph-name'>Test Scene</div>
+                                                </div>
+                                                <div class='graph-right'>
+                                                    <div class='graph-visible'>
+                                                        <i class='fa fa-eye'></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='right-container'>
+                                    
+                                    <div id='orientCubeWrapper'></div>
+                                </div>
+                                
+                                <div class='loader' id='loader'>
+                                    <div class='loader-text' id='loaderInfo'>Loading...</div>
+                                    <div class='loader-spinner'></div>
+                                </div>
+                            </div>
+                            <div class='footer' style="display: none;" >
+                                
+                                <div class='footer-item item-selected' id='toggleOrbit'>
+                                    <div class='footer-icon'><i class="fa fa-street-view"></i></div>
+                                    <div class='footer-title'>Orbit</div>
+                                </div>
+                                <div class='footer-item' id='togglePan'>
+                                    <div class='footer-icon'><i class='fa fa-arrows'></i></div>
+                                    <div class='footer-title'>Pan</div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                            
+                        </div>
+                        <button type="button" onclick="reimagineImage()" class="loginBtn">Download Model</button>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
+</div>
 
-    <script>
-        document.getElementById('imageInput').addEventListener('change', function (event) {
-            const reader = new FileReader();
-            reader.onload = function () {
-                const img = document.createElement('img');
-                img.src = reader.result;
-                document.getElementById('imagePreview').innerHTML = '';
-                document.getElementById('imagePreview').appendChild(img);
-            }
-            reader.readAsDataURL(event.target.files[0]);
-        });
+<script src="/static/js/three.min.js"></script>
+<script src="/static/js/OrbitControls.js"></script>
+<script src="/static/js/GLTFLoader.js"></script>
+<script src="/static/js/viewer.js"></script>
+<script>
 
-        document.querySelector('form').addEventListener('submit', function () {
-            document.getElementById('processing').style.display = 'flex';
-        });
-    </script>
+window.onload = () => {
+    let v = Viewer();
+    v.loadModel("/static/images/mitsubishi.glb");
+}
+
+</script>
 </body>
 
 </html>
+
